@@ -1,0 +1,11 @@
+server.port=8080
+spring.datasource.url=jdbc:postgresql://localhost:5432/organize
+spring.datasource.username=[YOUR_DATABASE_USERNAME]
+spring.datasource.password=[YOUR_DATABASE_PASSWORD]
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.jpa.show-sql=true
+
+spring.flyway.enabled=true
+spring.flyway.locations=classpath:db/migration
+spring.flyway.baseline-on-migrate=true
+api.security.token.secret=[YOUR_JWT_SECRET_KEY]
