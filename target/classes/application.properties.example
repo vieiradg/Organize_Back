@@ -1,0 +1,6 @@
+spring.datasource.url=jdbc:postgresql://localhost:5432/organize
+spring.datasource.username=[SEU_USUARIO]
+spring.datasource.password=[SENHA_PROJETO]
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.ddl-auto=update
+api.security.token.secret=your-secret-key
