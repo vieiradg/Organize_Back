@@ -31,17 +31,15 @@ public class AppointmentController {
             @AuthenticationPrincipal User user,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        List<Appointment> appointments = appointmentService.getAppointmentsByUserAndDateRange(
-                user.getId(),
-                date.atStartOfDay(),
-                date.plusDays(1).atStartOfDay()
-        );
-
-        List<AppointmentDTO> appointmentDTOs = appointments.stream()
+        List<AppointmentDTO> appointments = appointmentService.getAppointmentsByUserAndDateRange(
+                        user.getId(),
+                        date.atStartOfDay(),
+                        date.plusDays(1).atStartOfDay()
+                ).stream()
                 .map(AppointmentDTO::new)
-                .collect(Collectors.toList());
+                .toList();
 
-        return ResponseEntity.ok(appointmentDTOs);
+        return ResponseEntity.ok(appointments);
     }
 
     @PostMapping
@@ -49,11 +47,8 @@ public class AppointmentController {
             @AuthenticationPrincipal User user,
             @RequestBody @Valid AppointmentRequestDTO requestDTO
     ) {
-        try {
-            Appointment newAppointment = appointmentService.createAppointment(requestDTO, user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new AppointmentDTO(newAppointment));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        Appointment newAppointment = appointmentService.createAppointment(requestDTO, user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new AppointmentDTO(newAppointment));
     }
+
 }
