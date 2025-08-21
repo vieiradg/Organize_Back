@@ -46,18 +46,12 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<Void> register(@RequestBody @Valid RegisterDTO data) {
-        if (this.userRepository.findByEmail(data.email()).isPresent()) {
+        if (this.userRepository.findByUsername(data.username()).isPresent()) {
             return ResponseEntity.badRequest().build();
         }
 
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        User newUser = new User(
-                data.name(),
-                data.email(),
-                encryptedPassword,
-                data.phone(),
-                data.roles()
-        );
+        User newUser = new User(data.username(), encryptedPassword, data.roles());
         this.userRepository.save(newUser);
         return ResponseEntity.ok().build();
     }

@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class AppointmentService {
@@ -32,7 +31,7 @@ public class AppointmentService {
         this.userRepository = userRepository;
     }
 
-    public List<Appointment> getAppointmentsByUserAndDateRange(UUID userId, LocalDateTime start, LocalDateTime end) {
+    public List<Appointment> getAppointmentsByUserAndDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
         return appointmentRepository.findByUserIdAndStartTimeBetween(userId, start, end);
     }
 

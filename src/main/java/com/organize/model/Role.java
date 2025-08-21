@@ -3,9 +3,7 @@ package com.organize.model;
 import org.springframework.security.core.GrantedAuthority;
 
 public enum Role implements GrantedAuthority {
-    ROLE_ADMIN,
-    ROLE_PROFESSIONAL,
-    ROLE_CUSTOMER;
+    ROLE_PROFESSIONAL;
 
     @Override
     public String getAuthority() {
