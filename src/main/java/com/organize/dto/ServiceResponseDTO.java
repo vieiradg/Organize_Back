@@ -1,22 +1,23 @@
 package com.organize.dto;
 
-import com.organize.model.BeautyService;
-import java.math.BigDecimal;
+import com.organize.model.OfferedService;
+
+import java.util.UUID;
 
 public record ServiceResponseDTO(
-        Long id,
+        UUID id,
         String name,
         String description,
-        BigDecimal price,
+        Integer priceCents,
         Integer duration
 ) {
-    public ServiceResponseDTO(BeautyService service) {
+    public ServiceResponseDTO(OfferedService service) {
         this(
                 service.getId(),
                 service.getName(),
                 service.getDescription(),
-                service.getPrice(),
-                service.getDuration()
+                service.getPriceCents(),
+                service.getDurationMinutes()
         );
     }
 }

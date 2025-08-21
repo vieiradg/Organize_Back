@@ -2,15 +2,17 @@ package com.organize.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.math.BigDecimal;
+
+import java.util.UUID;
 
 public record ServiceRequestDTO(
         @NotBlank
         String name,
         String description,
         @NotNull
-        BigDecimal price,
+        Integer priceCents,
         @NotNull
-        Integer duration
+        Integer duration,
+        UUID establishmentId
 ) {
 }
