@@ -1,5 +1,6 @@
 package com.organize.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,9 +43,11 @@ public class Establishment {
     private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "establishment", cascade = CascadeType.ALL)
-    private List<Service> services;
+    @JsonManagedReference
+    private List<OfferedService> offeredServices;
 
     @OneToMany(mappedBy = "establishment", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Employee> employees;
 
     public Establishment() {
@@ -75,8 +78,8 @@ public class Establishment {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public List<Service> getServices() { return services; }
-    public void setServices(List<Service> services) { this.services = services; }
+    public List<OfferedService> getServices() { return offeredServices; }
+    public void setServices(List<OfferedService> offeredServices) { this.offeredServices = offeredServices; }
 
     public List<Employee> getEmployees() { return employees; }
     public void setEmployees(List<Employee> employees) { this.employees = employees; }

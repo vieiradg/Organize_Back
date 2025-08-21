@@ -1,5 +1,6 @@
 package com.organize.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -19,6 +20,7 @@ public class Employee {
 
     @ManyToOne
     @JoinColumn(name = "establishment_id", nullable = false)
+    @JsonBackReference
     private Establishment establishment;
 
     @ManyToOne
