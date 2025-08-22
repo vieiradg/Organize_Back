@@ -31,5 +31,3 @@ temp/
 Thumbs.db
 
 src/main/resources/application.properties
-/target/
-
