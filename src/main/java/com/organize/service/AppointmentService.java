@@ -1,59 +1,62 @@
 package com.organize.service;
 
 import com.organize.dto.AppointmentRequestDTO;
-import com.organize.model.Appointment;
-import com.organize.model.Customer;
-import com.organize.model.BeautyService;
-import com.organize.model.User;
-import com.organize.repository.AppointmentRepository;
-import com.organize.repository.CustomerRepository;
-import com.organize.repository.ServiceRepository;
-import com.organize.repository.UserRepository;
+import com.organize.model.*;
+import com.organize.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
-    private final CustomerRepository customerRepository;
     private final ServiceRepository serviceRepository;
     private final UserRepository userRepository;
+    private final EstablishmentRepository establishmentRepository;
+    private final EmployeeRepository employeeRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, CustomerRepository customerRepository, ServiceRepository serviceRepository, UserRepository userRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, ServiceRepository serviceRepository, UserRepository userRepository, EstablishmentRepository establishmentRepository, EmployeeRepository employeeRepository) {
         this.appointmentRepository = appointmentRepository;
-        this.customerRepository = customerRepository;
         this.serviceRepository = serviceRepository;
         this.userRepository = userRepository;
+        this.establishmentRepository = establishmentRepository;
+        this.employeeRepository = employeeRepository;
     }
 
     public List<Appointment> getAppointmentsByUserAndDateRange(UUID userId, LocalDateTime start, LocalDateTime end) {
-        return appointmentRepository.findByUserIdAndStartTimeBetween(userId, start, end);
+        return appointmentRepository.findAppointmentsByClientAndDateRange(userId, start, end);
     }
 
-    public Appointment createAppointment(AppointmentRequestDTO request, User professional) {
-        Customer customer = customerRepository.findById(request.customerId())
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        Set<BeautyService> services = new HashSet<>();
-        for (Long serviceId : request.serviceIds()) {
-            services.add(serviceRepository.findById(serviceId)
-                    .orElseThrow(() -> new RuntimeException("Serviço não encontrado")));
-        }
+    public Appointment createAppointment(AppointmentRequestDTO request, User loggedUser) {
+
+        User client = userRepository.findById(loggedUser.getId())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        OfferedService service = serviceRepository.findById(request.serviceId())
+                .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
+
+        Establishment establishment = establishmentRepository.findById(request.establishmentId())
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
+
+        Employee employee = employeeRepository.findById(request.employeeId())
+                .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
 
         Appointment appointment = new Appointment();
-        appointment.setUser(professional);
-        appointment.setCustomer(customer);
-        appointment.setServices(services);
+        appointment.setClient(loggedUser);
+        appointment.setService(service);
+        appointment.setEstablishment(establishment);
+        appointment.setEmployee(employee);
         appointment.setStartTime(request.startTime());
         appointment.setEndTime(request.endTime());
-        appointment.setStatus(request.status());
+        appointment.setStatus(AppointmentStatus.valueOf(request.status().toUpperCase()));
+        appointment.setClientNotes(request.clientNotes());
 
         return appointmentRepository.save(appointment);
     }
+
+
 }

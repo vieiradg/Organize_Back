@@ -2,12 +2,15 @@ package com.organize.dto;
 
 import java.time.LocalDateTime;
 import java.util.Set;
+import java.util.UUID;
 
 public record AppointmentRequestDTO(
-        Long customerId,
-        Set<Long> serviceIds,
+        UUID customerId,
+        UUID serviceId,
+        UUID establishmentId,
+        UUID employeeId,
         LocalDateTime startTime,
         LocalDateTime endTime,
-        String status
-) {
-}
+        String status,
+        String clientNotes
+) {}

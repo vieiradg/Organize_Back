@@ -1,12 +1,13 @@
 package com.organize.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "services")
-public class Service {
+public class OfferedService {
 
     @Id
     @GeneratedValue(generator = "UUID")
@@ -19,6 +20,7 @@ public class Service {
 
     @ManyToOne
     @JoinColumn(name = "establishment_id", nullable = false)
+    @JsonBackReference
     private Establishment establishment;
 
     @Column(nullable = false)
@@ -39,7 +41,7 @@ public class Service {
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
     private LocalDateTime createdAt;
 
-    public Service() {
+    public OfferedService() {
         this.createdAt = LocalDateTime.now();
     }
 
@@ -66,4 +68,6 @@ public class Service {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+
 }

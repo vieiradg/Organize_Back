@@ -2,9 +2,9 @@ package com.organize.controller;
 
 import com.organize.dto.ServiceRequestDTO;
 import com.organize.dto.ServiceResponseDTO;
-import com.organize.model.BeautyService;
+import com.organize.model.OfferedService;
 import com.organize.model.User;
-import com.organize.service.ServiceService;
+import com.organize.service.OfferedServiceService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/services")
 public class ServiceController {
 
-    private final ServiceService serviceService;
+    private final OfferedServiceService offeredServiceService;
 
-    public ServiceController(ServiceService serviceService) {
-        this.serviceService = serviceService;
+    public ServiceController(OfferedServiceService offeredServiceService) {
+        this.offeredServiceService = offeredServiceService;
     }
 
     @PostMapping
@@ -29,13 +29,13 @@ public class ServiceController {
             @AuthenticationPrincipal User user,
             @RequestBody @Valid ServiceRequestDTO requestDTO
     ) {
-        BeautyService newService = serviceService.createService(requestDTO, user);
+        OfferedService newService = offeredServiceService.createService(requestDTO, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ServiceResponseDTO(newService));
     }
 
     @GetMapping
     public ResponseEntity<List<ServiceResponseDTO>> getServices(@AuthenticationPrincipal User user) {
-        List<BeautyService> services = serviceService.getServicesByUser(user);
+        List<OfferedService> services = offeredServiceService.getServicesByOwner(user);
         List<ServiceResponseDTO> serviceDTOs = services.stream()
                 .map(ServiceResponseDTO::new)
                 .collect(Collectors.toList());
