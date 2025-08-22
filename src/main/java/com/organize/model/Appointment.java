@@ -26,7 +26,7 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
-    private Service service;
+    private BeautyService service;
 
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)
@@ -64,8 +64,8 @@ public class Appointment {
     public Establishment getEstablishment() { return establishment; }
     public void setEstablishment(Establishment establishment) { this.establishment = establishment; }
 
-    public Service getService() { return service; }
-    public void setService(Service service) { this.service = service; }
+    public BeautyService getService() { return service; }
+    public void setService(BeautyService service) { this.service = service; }
 
     public Employee getEmployee() { return employee; }
     public void setEmployee(Employee employee) { this.employee = employee; }
