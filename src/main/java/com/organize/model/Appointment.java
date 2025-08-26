@@ -1,19 +1,22 @@
 package com.organize.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "appointments")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Appointment {
+
     @Id
-    @GeneratedValue(generator = "UUID")
-    @org.hibernate.annotations.GenericGenerator(
-            name = "UUID",
-            strategy = "org.hibernate.id.UUIDGenerator"
-    )
-    @Column(columnDefinition = "uuid", updatable = false, nullable = false)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @ManyToOne
@@ -48,43 +51,6 @@ public class Appointment {
     @Column(name = "client_notes")
     private String clientNotes;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP")
-    private LocalDateTime createdAt;
-
-    public Appointment() {
-        this.createdAt = LocalDateTime.now();
-    }
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
-    public User getClient() { return client; }
-    public void setClient(User client) { this.client = client; }
-
-    public Establishment getEstablishment() { return establishment; }
-    public void setEstablishment(Establishment establishment) { this.establishment = establishment; }
-
-    public Service getService() { return service; }
-    public void setService(Service service) { this.service = service; }
-
-    public Employee getEmployee() { return employee; }
-    public void setEmployee(Employee employee) { this.employee = employee; }
-
-    public LocalDateTime getStartTime() { return startTime; }
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
-
-    public LocalDateTime getEndTime() { return endTime; }
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
-
-    public AppointmentStatus getStatus() { return status; }
-    public void setStatus(AppointmentStatus status) { this.status = status; }
-
-    public Integer getExtraPriceCents() { return extraPriceCents; }
-    public void setExtraPriceCents(Integer extraPriceCents) { this.extraPriceCents = extraPriceCents; }
-
-    public String getClientNotes() { return clientNotes; }
-    public void setClientNotes(String clientNotes) { this.clientNotes = clientNotes; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 }

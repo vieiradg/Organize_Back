@@ -1,58 +1,60 @@
 package com.organize.service;
 
 import com.organize.dto.AppointmentRequestDTO;
-import com.organize.model.Appointment;
-import com.organize.model.Customer;
-import com.organize.model.BeautyService;
-import com.organize.model.User;
-import com.organize.repository.AppointmentRepository;
-import com.organize.repository.CustomerRepository;
-import com.organize.repository.ServiceRepository;
-import com.organize.repository.UserRepository;
+import com.organize.model.*;
+import com.organize.repository.*;
+
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
-    private final CustomerRepository customerRepository;
-    private final ServiceRepository serviceRepository;
     private final UserRepository userRepository;
+    private final ServiceRepository serviceRepository;
+    private final EmployeeRepository employeeRepository;
+    private final EstablishmentRepository establishmentRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, CustomerRepository customerRepository, ServiceRepository serviceRepository, UserRepository userRepository) {
+    public AppointmentService(
+        AppointmentRepository appointmentRepository,
+        UserRepository userRepository,
+        ServiceRepository serviceRepository,
+        EmployeeRepository employeeRepository,
+        EstablishmentRepository establishmentRepository
+    ) {
         this.appointmentRepository = appointmentRepository;
-        this.customerRepository = customerRepository;
-        this.serviceRepository = serviceRepository;
         this.userRepository = userRepository;
+        this.serviceRepository = serviceRepository;
+        this.employeeRepository = employeeRepository;
+        this.establishmentRepository = establishmentRepository;
     }
 
-    public List<Appointment> getAppointmentsByUserAndDateRange(UUID userId, LocalDateTime start, LocalDateTime end) {
-        return appointmentRepository.findByUserIdAndStartTimeBetween(userId, start, end);
+    public List<Appointment> getAppointmentsByEmployeeAndDateRange(UUID employeeId, LocalDateTime start, LocalDateTime end) {
+        return appointmentRepository.findByEmployeeIdAndStartTimeBetween(employeeId, start, end);
     }
 
-    public Appointment createAppointment(AppointmentRequestDTO request, User professional) {
-        Customer customer = customerRepository.findById(request.customerId())
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+    public Appointment createAppointment(AppointmentRequestDTO request, User userLogged) {
+        User client = userRepository.findById(request.clientId())
+            .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        Set<BeautyService> services = new HashSet<>();
-        for (Long serviceId : request.serviceIds()) {
-            services.add(serviceRepository.findById(serviceId)
-                    .orElseThrow(() -> new RuntimeException("Serviço não encontrado")));
-        }
+ 
+        Employee employee = employeeRepository.findById(request.employeeId())
+            .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
+
+        Establishment establishment = establishmentRepository.findById(request.establishmentId())
+            .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
 
         Appointment appointment = new Appointment();
-        appointment.setUser(professional);
-        appointment.setCustomer(customer);
-        appointment.setServices(services);
+        appointment.setClient(client);
+        appointment.setEmployee(employee);
+        appointment.setEstablishment(establishment);
         appointment.setStartTime(request.startTime());
         appointment.setEndTime(request.endTime());
-        appointment.setStatus(request.status());
+        appointment.setStatus(AppointmentStatus.valueOf(request.status().toUpperCase()));
 
         return appointmentRepository.save(appointment);
     }

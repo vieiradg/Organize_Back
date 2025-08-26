@@ -31,7 +31,7 @@ public class AppointmentController {
             @AuthenticationPrincipal User user,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        List<Appointment> appointments = appointmentService.getAppointmentsByUserAndDateRange(
+        List<Appointment> appointments = appointmentService.getAppointmentsByEmployeeAndDateRange(
                 user.getId(),
                 date.atStartOfDay(),
                 date.plusDays(1).atStartOfDay()
