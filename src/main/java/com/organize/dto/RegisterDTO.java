@@ -1,8 +1,15 @@
 package com.organize.dto;
 
-import com.organize.model.Role;
+import jakarta.validation.constraints.NotBlank;
 
-import java.util.Set;
-
-public record RegisterDTO(String name, String email, String phone, String password, Set<Role> roles) {
+public record RegisterDTO(
+    @NotBlank
+    String name,
+    @NotBlank
+    String email,
+    @NotBlank
+    String phone,
+    @NotBlank
+    String password
+) {
 }

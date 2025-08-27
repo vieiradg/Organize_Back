@@ -5,6 +5,7 @@ import com.organize.dto.LoginResponseDTO;
 import com.organize.dto.PasswordResetConfirmDTO;
 import com.organize.dto.PasswordResetRequestDTO;
 import com.organize.dto.RegisterDTO;
+import com.organize.model.Role; 
 import com.organize.model.User;
 import com.organize.repository.UserRepository;
 import com.organize.security.TokenService;
@@ -13,11 +14,13 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder; 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Set; 
 
 @RestController
 @RequestMapping("auth")
@@ -27,12 +30,14 @@ public class AuthenticationController {
     private final UserRepository userRepository;
     private final TokenService tokenService;
     private final AuthService authService;
+    private final PasswordEncoder passwordEncoder; 
 
-    public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository, TokenService tokenService, AuthService authService) {
+    public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository, TokenService tokenService, AuthService authService, PasswordEncoder passwordEncoder) { 
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.tokenService = tokenService;
         this.authService = authService;
+        this.passwordEncoder = passwordEncoder; 
     }
 
     @PostMapping("/login")
@@ -50,13 +55,15 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().build();
         }
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+        String encryptedPassword = this.passwordEncoder.encode(data.password());
+        
+        Set<Role> defaultRoles = Set.of(Role.ROLE_CUSTOMER);
         User newUser = new User(
                 data.name(),
                 data.email(),
                 encryptedPassword,
                 data.phone(),
-                data.roles()
+                defaultRoles 
         );
         this.userRepository.save(newUser);
         return ResponseEntity.ok().build();
