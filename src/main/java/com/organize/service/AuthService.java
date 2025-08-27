@@ -4,8 +4,6 @@ import com.organize.model.PasswordResetToken;
 import com.organize.model.User;
 import com.organize.repository.PasswordResetTokenRepository;
 import com.organize.repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-public class AuthService implements UserDetailsService {
+public class AuthService { 
 
     private final UserRepository userRepository;
     private final PasswordResetTokenRepository passwordResetTokenRepository;
@@ -26,11 +24,6 @@ public class AuthService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
-    }
 
     public void createPasswordResetTokenForUser(String email) {
         User user = userRepository.findByEmail(email)
@@ -40,7 +33,6 @@ public class AuthService implements UserDetailsService {
         PasswordResetToken myToken = new PasswordResetToken(token, user);
         passwordResetTokenRepository.save(myToken);
 
-        
         System.out.println("Token de redefinição de senha para " + email + ": " + token);
     }
 
@@ -55,6 +47,6 @@ public class AuthService implements UserDetailsService {
         User user = passToken.getUser();
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        passwordResetTokenRepository.delete(passToken); // Token usado, pode ser removido
+        passwordResetTokenRepository.delete(passToken);
     }
 }
