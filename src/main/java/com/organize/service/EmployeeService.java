@@ -8,11 +8,11 @@ import com.organize.model.User;
 import com.organize.repository.EmployeeRepository;
 import com.organize.repository.UserRepository;
 import com.organize.repository.EstablishmentRepository;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class EmployeeService {
@@ -28,19 +28,19 @@ public class EmployeeService {
         this.employeeRepository = employeeRepository;
     }
 
-    public List<Employee> getEmployeesByEstablishmentId(UUID establishmentId) {
-        return employeeRepository.findByEstablishmentId(establishmentId);
+    public List<EmployeeResponseDTO> getEmployeesByEstablishmentId(UUID establishmentId) {
+        return employeeRepository.findByEstablishmentId(establishmentId)
+                .stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
-    public EmployeeResponseDTO createEmployee(EmployeeRequestDTO request,
-                                   User loggedUser
-    ) {
-        User user = userRepository.findById(loggedUser.getId())
+    public EmployeeResponseDTO createEmployee(UUID establishmentId, EmployeeRequestDTO request, User loggedUser) {
+        User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        Establishment establishment = establishmentRepository.findById(request.establishmentId())
+        Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
-
 
         if (!establishment.getOwner().equals(loggedUser)) {
             throw new RuntimeException("Você não tem permissão para adicionar funcionários nesse estabelecimento");
@@ -56,7 +56,7 @@ public class EmployeeService {
         return toResponseDTO(saved);
     }
 
-    public Employee updateEmployee(UUID employeeId, EmployeeRequestDTO request, User loggedUser) {
+    public EmployeeResponseDTO updateEmployee(UUID establishmentId, UUID employeeId, EmployeeRequestDTO request, User loggedUser) {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
 
@@ -67,7 +67,7 @@ public class EmployeeService {
         User user = userRepository.findById(request.userId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        Establishment establishment = establishmentRepository.findById(request.establishmentId())
+        Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
 
         employee.setUser(user);
@@ -75,7 +75,8 @@ public class EmployeeService {
         employee.setName(request.name());
         employee.setRole(request.role());
 
-        return employeeRepository.save(employee);
+        Employee saved = employeeRepository.save(employee);
+        return toResponseDTO(saved);
     }
 
     public void deleteEmployee(UUID employeeId, User loggedUser) {
@@ -99,5 +100,4 @@ public class EmployeeService {
                 employee.getCreatedAt()
         );
     }
-
 }
