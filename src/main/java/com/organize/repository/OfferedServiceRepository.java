@@ -9,8 +9,9 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.UUID;
 
-public interface ServiceRepository extends JpaRepository<OfferedService, UUID> {
+public interface OfferedServiceRepository extends JpaRepository<OfferedService, UUID> {
     @Query("SELECT s FROM OfferedService s WHERE s.establishment.owner = :owner")
     List<OfferedService> findServicesByOwner(@Param("owner") User owner);
 
+    List<OfferedService> findByEstablishmentId(UUID establishmentId);
 }
