@@ -1,6 +1,7 @@
 package com.organize.repository;
 
 import com.organize.model.Appointment;
+import com.organize.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,4 +16,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
                                                            @Param("start") LocalDateTime start,
                                                            @Param("end") LocalDateTime end);
 
+    List<Appointment> findByClient(User client);
 }

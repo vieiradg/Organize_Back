@@ -7,7 +7,6 @@ public record RegisterDTO(
     String name,
     @NotBlank
     String email,
-    @NotBlank
     String phone,
     @NotBlank
     String password
