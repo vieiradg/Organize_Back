@@ -6,6 +6,7 @@ import com.organize.model.OfferedService;
 import com.organize.model.User;
 import com.organize.repository.EstablishmentRepository;
 import com.organize.repository.ServiceRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +25,11 @@ public class OfferedServiceService {
     public OfferedService createService(ServiceRequestDTO requestDTO, User user) {
         Establishment establishment = establishmentRepository.findById(requestDTO.establishmentId())
                 .orElseThrow(() -> new IllegalArgumentException("Estabelecimento não encontrado"));
+
+
+        if (!establishment.getOwner().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Usuario não é o proprietário do estabelecimento.");
+        }
 
         OfferedService service = new OfferedService();
         service.setName(requestDTO.name());
