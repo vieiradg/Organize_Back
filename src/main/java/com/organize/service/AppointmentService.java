@@ -13,14 +13,14 @@ import java.util.UUID;
 public class AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
-    private final ServiceRepository serviceRepository;
+    private final OfferedServiceRepository offeredServiceRepository;
     private final UserRepository userRepository;
     private final EstablishmentRepository establishmentRepository;
     private final EmployeeRepository employeeRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, ServiceRepository serviceRepository, UserRepository userRepository, EstablishmentRepository establishmentRepository, EmployeeRepository employeeRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, OfferedServiceRepository offeredServiceRepository, UserRepository userRepository, EstablishmentRepository establishmentRepository, EmployeeRepository employeeRepository) {
         this.appointmentRepository = appointmentRepository;
-        this.serviceRepository = serviceRepository;
+        this.offeredServiceRepository = offeredServiceRepository;
         this.userRepository = userRepository;
         this.establishmentRepository = establishmentRepository;
         this.employeeRepository = employeeRepository;
@@ -36,7 +36,7 @@ public class AppointmentService {
         User client = userRepository.findById(loggedUser.getId())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        OfferedService service = serviceRepository.findById(request.serviceId())
+        OfferedService service = offeredServiceRepository.findById(request.serviceId())
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
         Establishment establishment = establishmentRepository.findById(request.establishmentId())
