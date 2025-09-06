@@ -7,6 +7,7 @@ import com.organize.model.User;
 import com.organize.repository.EstablishmentRepository;
 import com.organize.repository.OfferedServiceRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +19,8 @@ public class OfferedServiceService {
     private final OfferedServiceRepository offeredServiceRepository;
     private final EstablishmentRepository establishmentRepository;
 
-    public OfferedServiceService(OfferedServiceRepository offeredServiceRepository, EstablishmentRepository establishmentRepository) {
+    public OfferedServiceService(OfferedServiceRepository offeredServiceRepository,
+                                 EstablishmentRepository establishmentRepository) {
         this.offeredServiceRepository = offeredServiceRepository;
         this.establishmentRepository = establishmentRepository;
     }
@@ -26,6 +28,10 @@ public class OfferedServiceService {
     public OfferedService createService(OfferedServiceRequestDTO requestDTO, User user) {
         Establishment establishment = establishmentRepository.findById(requestDTO.establishmentId())
                 .orElseThrow(() -> new IllegalArgumentException("Estabelecimento não encontrado"));
+
+        if (!establishment.getOwner().getId().equals(user.getId())) {
+            throw new AccessDeniedException("Usuário não é o proprietário do estabelecimento.");
+        }
 
         OfferedService service = new OfferedService();
         service.setName(requestDTO.name());
@@ -53,11 +59,8 @@ public class OfferedServiceService {
                 .orElseThrow(() -> new EntityNotFoundException("Serviço com ID " + serviceId + " não encontrado."));
     }
 
-    /**
-     * Atualiza um serviço existente.
-     */
     public OfferedService updateService(UUID serviceId, OfferedServiceRequestDTO requestDTO) {
-        OfferedService existingService = getServiceById(serviceId); // Reutiliza o método que já lança exceção se não encontrar
+        OfferedService existingService = getServiceById(serviceId);
 
         existingService.setName(requestDTO.name());
         existingService.setDescription(requestDTO.description());
@@ -67,9 +70,6 @@ public class OfferedServiceService {
         return offeredServiceRepository.save(existingService);
     }
 
-    /**
-     * Deleta um serviço pelo seu ID.
-     */
     public void deleteService(UUID serviceId) {
         if (!offeredServiceRepository.existsById(serviceId)) {
             throw new EntityNotFoundException("Serviço com ID " + serviceId + " não encontrado.");
