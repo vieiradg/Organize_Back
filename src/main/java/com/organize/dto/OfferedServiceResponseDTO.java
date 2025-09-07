@@ -4,14 +4,14 @@ import com.organize.model.OfferedService;
 
 import java.util.UUID;
 
-public record ServiceResponseDTO(
+public record OfferedServiceResponseDTO(
         UUID id,
         String name,
         String description,
         Integer priceCents,
         Integer duration
 ) {
-    public ServiceResponseDTO(OfferedService service) {
+    public OfferedServiceResponseDTO(OfferedService service) {
         this(
                 service.getId(),
                 service.getName(),
