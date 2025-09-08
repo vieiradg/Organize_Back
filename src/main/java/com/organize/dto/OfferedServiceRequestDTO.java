@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record ServiceRequestDTO(
+public record OfferedServiceRequestDTO(
         @NotBlank
         String name,
         String description,

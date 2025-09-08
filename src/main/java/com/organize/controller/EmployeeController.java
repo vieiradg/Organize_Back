@@ -2,7 +2,6 @@ package com.organize.controller;
 
 import com.organize.dto.EmployeeRequestDTO;
 import com.organize.dto.EmployeeResponseDTO;
-import com.organize.model.Employee;
 import com.organize.model.User;
 import com.organize.service.EmployeeService;
 import org.springframework.http.ResponseEntity;
@@ -59,5 +58,4 @@ public class EmployeeController {
         employeeService.deleteEmployee(employeeId, loggedUser);
         return ResponseEntity.noContent().build();
     }
-
 }
