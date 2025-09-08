@@ -2,6 +2,7 @@ package com.organize.model;
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
@@ -9,6 +10,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -39,9 +41,21 @@ public class User implements UserDetails {
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "role") 
-    @Enumerated(EnumType.STRING) 
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
     private Set<Role> roles;
+
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Establishment> establishmentsOwned;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Employee> employeeRoles;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<Appointment> appointments;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
+    private List<ClientData> clientDataList;
 
     public User() {
         this.createdAt = LocalDateTime.now();
@@ -56,44 +70,68 @@ public class User implements UserDetails {
         this.createdAt = LocalDateTime.now();
     }
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-    private List<Establishment> establishmentsOwned;
+    public UUID getId() {
+        return id;
+    }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Employee> employeeRoles;
+    public void setId(UUID id) {
+        this.id = id;
+    }
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
-    private List<Appointment> appointments;
+    public String getName() {
+        return name;
+    }
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL)
-    private List<ClientData> clientDataList;
+    public void setName(String name) {
+        this.name = name;
+    }
 
+    public String getEmail() {
+        return email;
+    }
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     @Override
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public String getPassword() {
+        return password;
+    }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getPhone() {
+        return phone;
+    }
 
-    public Set<Role> getRoles() { return roles; }
-    public void setRoles(Set<Role> roles) { this.roles = roles; }
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles;
+        return roles.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getAuthority()))
+                .collect(Collectors.toSet());
     }
 
     @Override

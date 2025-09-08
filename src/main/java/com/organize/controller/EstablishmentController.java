@@ -1,11 +1,14 @@
 package com.organize.controller;
 
 import com.organize.dto.EstablishmentDTO;
-import com.organize.model.Establishment;
+import com.organize.dto.EstablishmentRequestDTO;
+import com.organize.model.User;
 import com.organize.repository.EstablishmentRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.organize.service.EstablishmentService;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,9 +18,11 @@ import java.util.stream.Collectors;
 public class EstablishmentController {
 
     private final EstablishmentRepository establishmentRepository;
+    private final EstablishmentService establishmentService;
 
-    public EstablishmentController(EstablishmentRepository establishmentRepository) {
+    public EstablishmentController(EstablishmentRepository establishmentRepository, EstablishmentService establishmentService) {
         this.establishmentRepository = establishmentRepository;
+        this.establishmentService = establishmentService;
     }
 
     @GetMapping
@@ -25,5 +30,16 @@ public class EstablishmentController {
         return establishmentRepository.findAll().stream()
                 .map(establishment -> new EstablishmentDTO(establishment.getId(), establishment.getName()))
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public EstablishmentDTO createEstablishment(
+            @RequestBody EstablishmentRequestDTO data,
+            @AuthenticationPrincipal User user
+    ) {
+        var newEstablishment = establishmentService.createEstablishment(data, user);
+        return new EstablishmentDTO(newEstablishment.getId(), newEstablishment.getName());
     }
 }

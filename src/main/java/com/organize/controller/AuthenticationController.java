@@ -5,8 +5,10 @@ import com.organize.dto.LoginResponseDTO;
 import com.organize.dto.PasswordResetConfirmDTO;
 import com.organize.dto.PasswordResetRequestDTO;
 import com.organize.dto.RegisterDTO;
-import com.organize.model.Role; 
+import com.organize.model.Establishment;
+import com.organize.model.Role;
 import com.organize.model.User;
+import com.organize.repository.EstablishmentRepository;
 import com.organize.repository.UserRepository;
 import com.organize.security.TokenService;
 import com.organize.service.AuthService;
@@ -14,13 +16,12 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder; 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Set; 
+import java.util.Set;
 
 @RestController
 @RequestMapping("auth")
@@ -30,23 +31,31 @@ public class AuthenticationController {
     private final UserRepository userRepository;
     private final TokenService tokenService;
     private final AuthService authService;
-    private final PasswordEncoder passwordEncoder; 
+    private final PasswordEncoder passwordEncoder;
+    private final EstablishmentRepository establishmentRepository; 
+    
 
-    public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository, TokenService tokenService, AuthService authService, PasswordEncoder passwordEncoder) { 
+    public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository, TokenService tokenService, AuthService authService, PasswordEncoder passwordEncoder, EstablishmentRepository establishmentRepository) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.tokenService = tokenService;
         this.authService = authService;
-        this.passwordEncoder = passwordEncoder; 
+        this.passwordEncoder = passwordEncoder;
+        this.establishmentRepository = establishmentRepository;
     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO data) {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.username(), data.password());
         var auth = this.authenticationManager.authenticate(usernamePassword);
+        var user = (User) auth.getPrincipal();
 
-        var token = tokenService.generateToken((User) auth.getPrincipal());
-        return ResponseEntity.ok(new LoginResponseDTO(token));
+        var establishment = this.establishmentRepository.findByOwnerId(user.getId())
+                .orElse(null);
+
+        var token = tokenService.generateToken(user);
+        
+        return ResponseEntity.ok(new LoginResponseDTO(token, user, establishment));
     }
 
     @PostMapping("/register")
@@ -57,13 +66,13 @@ public class AuthenticationController {
 
         String encryptedPassword = this.passwordEncoder.encode(data.password());
         
-        Set<Role> defaultRoles = Set.of(Role.ROLE_CUSTOMER);
+        Set<Role> defaultRoles = Set.of(Role.ROLE_ADMIN); 
         User newUser = new User(
                 data.name(),
                 data.email(),
                 encryptedPassword,
                 data.phone(),
-                defaultRoles 
+                defaultRoles
         );
         this.userRepository.save(newUser);
         return ResponseEntity.ok().build();
