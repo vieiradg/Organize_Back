@@ -26,7 +26,6 @@ public class OfferedService {
     @Column(nullable = false)
     private String name;
 
-    @Lob
     private String description;
 
     @Column(name = "price_cents", nullable = false)
@@ -68,6 +67,4 @@ public class OfferedService {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
-
 }

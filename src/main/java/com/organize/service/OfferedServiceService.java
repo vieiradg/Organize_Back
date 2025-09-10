@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class OfferedServiceService {
@@ -37,7 +38,7 @@ public class OfferedServiceService {
         service.setName(requestDTO.name());
         service.setDescription(requestDTO.description());
         service.setPriceCents(requestDTO.priceCents());
-        service.setDurationMinutes(requestDTO.duration());
+        service.setDurationMinutes(requestDTO.durationMinutes());
         service.setEstablishment(establishment);
 
         return offeredServiceRepository.save(service);
@@ -65,7 +66,7 @@ public class OfferedServiceService {
         existingService.setName(requestDTO.name());
         existingService.setDescription(requestDTO.description());
         existingService.setPriceCents(requestDTO.priceCents());
-        existingService.setDurationMinutes(requestDTO.duration());
+        existingService.setDurationMinutes(requestDTO.durationMinutes());
 
         return offeredServiceRepository.save(existingService);
     }
