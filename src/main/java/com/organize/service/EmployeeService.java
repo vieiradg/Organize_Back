@@ -42,7 +42,7 @@ public class EmployeeService {
         Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
 
-        if (!establishment.getOwner().equals(loggedUser)) {
+        if (!establishment.getOwner().getId().equals(loggedUser.getId())) {
             throw new RuntimeException("Você não tem permissão para adicionar funcionários nesse estabelecimento");
         }
 
@@ -60,7 +60,7 @@ public class EmployeeService {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
 
-        if (!employee.getEstablishment().getOwner().equals(loggedUser)) {
+        if (!employee.getEstablishment().getOwner().getId().equals(loggedUser.getId())) {
             throw new RuntimeException("Você não tem permissão para editar esse funcionário");
         }
 
@@ -83,7 +83,7 @@ public class EmployeeService {
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Funcionário não encontrado"));
 
-        if (!employee.getEstablishment().getOwner().equals(loggedUser)) {
+        if (!employee.getEstablishment().getOwner().getId().equals(loggedUser.getId())) {
             throw new RuntimeException("Você não tem permissão para excluir esse funcionário");
         }
 

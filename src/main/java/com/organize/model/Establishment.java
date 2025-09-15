@@ -31,10 +31,6 @@ public class Establishment {
     @Column(name = "contact_phone")
     private String contactPhone;
 
-    @Lob
-    @Column(name = "opening_hours")
-    private String openingHours;
-
     @ManyToOne
     @JoinColumn(name = "subscription_plan_id")
     private Plan subscriptionPlan;
@@ -68,9 +64,6 @@ public class Establishment {
 
     public String getContactPhone() { return contactPhone; }
     public void setContactPhone(String contactPhone) { this.contactPhone = contactPhone; }
-
-    public String getOpeningHours() { return openingHours; }
-    public void setOpeningHours(String openingHours) { this.openingHours = openingHours; }
 
     public Plan getSubscriptionPlan() { return subscriptionPlan; }
     public void setSubscriptionPlan(Plan subscriptionPlan) { this.subscriptionPlan = subscriptionPlan; }
