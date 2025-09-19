@@ -40,7 +40,7 @@ public class Appointment {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AppointmentStatus status = AppointmentStatus.CONFIRMED;
+    private AppointmentStatus status = AppointmentStatus.PENDING;
 
     @Column(name = "extra_price_cents")
     private Integer extraPriceCents = 0;
