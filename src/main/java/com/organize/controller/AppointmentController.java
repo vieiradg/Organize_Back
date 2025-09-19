@@ -2,6 +2,7 @@ package com.organize.controller;
 
 import com.organize.dto.AppointmentDTO;
 import com.organize.dto.AppointmentRequestDTO;
+import com.organize.dto.AppointmentStatusUpdateDTO;
 import com.organize.model.Appointment;
 import com.organize.model.User;
 import com.organize.service.AppointmentService;
@@ -14,7 +15,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -50,5 +52,15 @@ public class AppointmentController {
         Appointment newAppointment = appointmentService.createAppointment(requestDTO, user);
         return ResponseEntity.status(HttpStatus.CREATED).body(new AppointmentDTO(newAppointment));
     }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<AppointmentDTO> updateAppointmentStatus(
+            @PathVariable UUID id,
+            @RequestBody @Valid AppointmentStatusUpdateDTO request
+    ) {
+        Appointment updated = appointmentService.updateStatus(id, request.status());
+        return ResponseEntity.ok(new AppointmentDTO(updated));
+    }
+
 
 }
