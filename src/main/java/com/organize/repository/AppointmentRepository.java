@@ -17,4 +17,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
                                                            @Param("end") LocalDateTime end);
 
     List<Appointment> findByClient(User client);
+
+    @Query("""
+    SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
+    FROM Appointment a
+    WHERE a.employee.id = :employeeId
+    AND ((a.startTime < :endTime) AND (a.endTime > :startTime))
+""")
+    boolean isEmployeeUnavailable(UUID employeeId, LocalDateTime startTime, LocalDateTime endTime);
+
 }
