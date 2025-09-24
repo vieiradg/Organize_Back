@@ -1,6 +1,9 @@
 package com.organize.model;
 
+import io.hypersistence.utils.hibernate.type.basic.PostgreSQLEnumType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -39,7 +42,8 @@ public class Appointment {
     private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Type(PostgreSQLEnumType.class)
+    @Column(nullable = false, columnDefinition  = "appointment_status")
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
     @Column(name = "extra_price_cents")

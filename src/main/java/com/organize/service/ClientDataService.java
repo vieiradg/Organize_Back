@@ -27,7 +27,7 @@ public class ClientDataService {
     public ClientDataService(ClientDataRepository clientDataRepository,
                              UserRepository userRepository,
                              EstablishmentRepository establishmentRepository,
-                             PasswordEncoder passwordEncoder) { // <-- recebe aqui
+                             PasswordEncoder passwordEncoder) {
         this.clientDataRepository = clientDataRepository;
         this.userRepository = userRepository;
         this.establishmentRepository = establishmentRepository;
