@@ -35,11 +35,9 @@ public class ClientDataService {
     }
 
     public ClientData createClientData(UUID establishmentId, ClientDataRequestDTO requestDTO, User loggedUser) {
-        // Buscar o estabelecimento
         Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
 
-        // Verificar se o usuário logado é o dono do estabelecimento
         if (!establishment.getOwner().getId().equals(loggedUser.getId())) {
             throw new RuntimeException("Você não tem permissão para adicionar clientes a este estabelecimento");
         }
@@ -78,13 +76,10 @@ public class ClientDataService {
         return clientDataRepository.save(clientData);
     }
 
-
     public List<ClientData> getClientsByEstablishment(UUID establishmentId, User loggedUser) {
-        // Buscar o estabelecimento
         Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
 
-        // Verificar se o usuário logado é o dono do estabelecimento
         if (!establishment.getOwner().getId().equals(loggedUser.getId())) {
             throw new RuntimeException("Você não tem permissão para visualizar os clientes deste estabelecimento");
         }
@@ -93,46 +88,37 @@ public class ClientDataService {
     }
 
     public ClientData updateClientData(UUID establishmentId, UUID clientDataId, ClientDataRequestDTO requestDTO,
-            User loggedUser) {
-        // Buscar o estabelecimento
+                                       User loggedUser) {
         Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
 
-        // Verificar se o usuário logado é o dono do estabelecimento
         if (!establishment.getOwner().getId().equals(loggedUser.getId())) {
             throw new RuntimeException("Você não tem permissão para atualizar clientes deste estabelecimento");
         }
 
-        // Buscar a ficha do cliente
         ClientData clientData = clientDataRepository.findById(clientDataId)
                 .orElseThrow(() -> new RuntimeException("Ficha do cliente não encontrada"));
 
-        // Verificar se a ficha pertence ao estabelecimento correto
         if (!clientData.getEstablishment().getId().equals(establishmentId)) {
             throw new RuntimeException("Esta ficha não pertence ao estabelecimento especificado");
         }
 
-        // Atualizar as notas privadas
         clientData.setPrivateNotes(requestDTO.privateNotes());
 
         return clientDataRepository.save(clientData);
     }
 
     public void deleteClientData(UUID establishmentId, UUID clientDataId, User loggedUser) {
-        // Buscar o estabelecimento
         Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
 
-        // Verificar se o usuário logado é o dono do estabelecimento
         if (!establishment.getOwner().getId().equals(loggedUser.getId())) {
             throw new RuntimeException("Você não tem permissão para excluir clientes deste estabelecimento");
         }
 
-        // Buscar a ficha do cliente
         ClientData clientData = clientDataRepository.findById(clientDataId)
                 .orElseThrow(() -> new RuntimeException("Ficha do cliente não encontrada"));
 
-        // Verificar se a ficha pertence ao estabelecimento correto
         if (!clientData.getEstablishment().getId().equals(establishmentId)) {
             throw new RuntimeException("Esta ficha não pertence ao estabelecimento especificado");
         }

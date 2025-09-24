@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,5 +41,25 @@ public class CustomerService {
 
             return new CustomerResponseDTO(user, lastVisit, appointmentsCount);
         }).collect(Collectors.toList());
+    }
+
+    public Optional<CustomerResponseDTO> getCustomerById(UUID id) {
+        Optional<User> userOpt = userRepository.findById(id);
+
+        if (userOpt.isEmpty() || !userOpt.get().getRoles().contains(Role.ROLE_CUSTOMER)) {
+            return Optional.empty();
+        }
+
+        User user = userOpt.get();
+        List<Appointment> appointments = appointmentRepository.findByClient(user);
+
+        LocalDateTime lastVisit = appointments.stream()
+                .map(Appointment::getStartTime)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+
+        CustomerResponseDTO dto = new CustomerResponseDTO(user, lastVisit, appointments.size());
+
+        return Optional.of(dto);
     }
 }

@@ -35,7 +35,6 @@ public class AppointmentService {
         return appointmentRepository.findAppointmentsByClientAndDateRange(userId, start, end);
     }
 
-
     public Appointment createAppointment(AppointmentRequestDTO request, User loggedUser) {
 
         User client = userRepository.findById(loggedUser.getId())
@@ -58,7 +57,6 @@ public class AppointmentService {
             throw new RuntimeException("Funcionário já possui agendamento nesse horário");
         }
 
-
         Appointment appointment = new Appointment();
         appointment.setClient(client);
         appointment.setService(service);
@@ -66,7 +64,11 @@ public class AppointmentService {
         appointment.setEmployee(employee);
         appointment.setStartTime(request.startTime());
         appointment.setEndTime(request.endTime());
-        appointment.setStatus(AppointmentStatus.valueOf(request.status().toUpperCase()));
+
+        appointment.setStatus(
+                request.status() != null ? request.status() : AppointmentStatus.PENDING
+        );
+
         appointment.setClientNotes(request.clientNotes());
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
@@ -83,18 +85,19 @@ public class AppointmentService {
     }
 
     public Appointment updateStatus(UUID id, String status) {
-       Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Argumento não encontrado"));
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Argumento não encontrado"));
 
-       AppointmentStatus newStatus;
+        AppointmentStatus newStatus;
 
-       try {
-           newStatus = AppointmentStatus.valueOf(status.toUpperCase());
-       } catch (IllegalArgumentException e) {
-           throw new RuntimeException("Status inválido: " + status);
-       }
+        try {
+            newStatus = AppointmentStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Status inválido: " + status);
+        }
 
-       appointment.setStatus(newStatus);
-       Appointment savedAppointment = appointmentRepository.save(appointment);
+        appointment.setStatus(newStatus);
+        Appointment savedAppointment = appointmentRepository.save(appointment);
 
         List<Webhook> customerWebhooks = webhookRepository.findByUser(savedAppointment.getClient())
                 .stream()
