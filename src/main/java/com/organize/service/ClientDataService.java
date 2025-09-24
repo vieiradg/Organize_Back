@@ -27,7 +27,7 @@ public class ClientDataService {
     public ClientDataService(ClientDataRepository clientDataRepository,
                              UserRepository userRepository,
                              EstablishmentRepository establishmentRepository,
-                             PasswordEncoder passwordEncoder) { 
+                             PasswordEncoder passwordEncoder) {
         this.clientDataRepository = clientDataRepository;
         this.userRepository = userRepository;
         this.establishmentRepository = establishmentRepository;
@@ -76,7 +76,6 @@ public class ClientDataService {
         return clientDataRepository.save(clientData);
     }
 
-
     public List<ClientData> getClientsByEstablishment(UUID establishmentId, User loggedUser) {
         Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
@@ -89,7 +88,7 @@ public class ClientDataService {
     }
 
     public ClientData updateClientData(UUID establishmentId, UUID clientDataId, ClientDataRequestDTO requestDTO,
-            User loggedUser) {
+                                       User loggedUser) {
         Establishment establishment = establishmentRepository.findById(establishmentId)
                 .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado"));
 
