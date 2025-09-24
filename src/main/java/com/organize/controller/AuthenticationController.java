@@ -8,6 +8,7 @@ import com.organize.dto.RegisterDTO;
 import com.organize.model.Establishment;
 import com.organize.model.Role;
 import com.organize.model.User;
+import com.organize.repository.ClientDataRepository;
 import com.organize.repository.EstablishmentRepository;
 import com.organize.repository.UserRepository;
 import com.organize.security.TokenService;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 import java.util.Set;
 
 @RestController
@@ -32,16 +34,23 @@ public class AuthenticationController {
     private final TokenService tokenService;
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
-    private final EstablishmentRepository establishmentRepository; 
-    
+    private final EstablishmentRepository establishmentRepository;
+    private final ClientDataRepository clientDataRepository;
 
-    public AuthenticationController(AuthenticationManager authenticationManager, UserRepository userRepository, TokenService tokenService, AuthService authService, PasswordEncoder passwordEncoder, EstablishmentRepository establishmentRepository) {
+    public AuthenticationController(AuthenticationManager authenticationManager,
+                                    UserRepository userRepository,
+                                    TokenService tokenService,
+                                    AuthService authService,
+                                    PasswordEncoder passwordEncoder,
+                                    EstablishmentRepository establishmentRepository,
+                                    ClientDataRepository clientDataRepository) {
         this.authenticationManager = authenticationManager;
         this.userRepository = userRepository;
         this.tokenService = tokenService;
         this.authService = authService;
         this.passwordEncoder = passwordEncoder;
         this.establishmentRepository = establishmentRepository;
+        this.clientDataRepository = clientDataRepository;
     }
 
     @PostMapping("/login")
@@ -50,11 +59,21 @@ public class AuthenticationController {
         var auth = this.authenticationManager.authenticate(usernamePassword);
         var user = (User) auth.getPrincipal();
 
-        var establishment = this.establishmentRepository.findByOwnerId(user.getId())
-                .orElse(null);
+        Establishment establishment = null;
+
+        if (user.getRoles().contains(Role.ROLE_ADMIN)) {
+            establishment = this.establishmentRepository.findByOwnerId(user.getId())
+                    .orElse(null);
+        }
+
+        if (user.getRoles().contains(Role.ROLE_CUSTOMER)) {
+            establishment = this.clientDataRepository.findByClientId(user.getId())
+                    .map(cd -> cd.getEstablishment())
+                    .orElse(null);
+        }
 
         var token = tokenService.generateToken(user);
-        
+
         return ResponseEntity.ok(new LoginResponseDTO(token, user, establishment));
     }
 
@@ -65,15 +84,18 @@ public class AuthenticationController {
         }
 
         String encryptedPassword = this.passwordEncoder.encode(data.password());
-        
-        Set<Role> defaultRoles = Set.of(Role.ROLE_ADMIN); 
+
+        Role role = Role.valueOf(data.role());
+        Set<Role> roles = Set.of(role);
+
         User newUser = new User(
                 data.name(),
                 data.email(),
                 encryptedPassword,
                 data.phone(),
-                defaultRoles
+                roles
         );
+
         this.userRepository.save(newUser);
         return ResponseEntity.ok().build();
     }
