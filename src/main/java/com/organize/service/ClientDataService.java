@@ -3,13 +3,17 @@ package com.organize.service;
 import com.organize.dto.ClientDataRequestDTO;
 import com.organize.model.ClientData;
 import com.organize.model.Establishment;
+import com.organize.model.Role;
 import com.organize.model.User;
 import com.organize.repository.ClientDataRepository;
 import com.organize.repository.EstablishmentRepository;
 import com.organize.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -18,13 +22,16 @@ public class ClientDataService {
     private final ClientDataRepository clientDataRepository;
     private final UserRepository userRepository;
     private final EstablishmentRepository establishmentRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public ClientDataService(ClientDataRepository clientDataRepository,
-            UserRepository userRepository,
-            EstablishmentRepository establishmentRepository) {
+                             UserRepository userRepository,
+                             EstablishmentRepository establishmentRepository,
+                             PasswordEncoder passwordEncoder) { // <-- recebe aqui
         this.clientDataRepository = clientDataRepository;
         this.userRepository = userRepository;
         this.establishmentRepository = establishmentRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public ClientData createClientData(UUID establishmentId, ClientDataRequestDTO requestDTO, User loggedUser) {
@@ -37,20 +44,31 @@ public class ClientDataService {
             throw new RuntimeException("Você não tem permissão para adicionar clientes a este estabelecimento");
         }
 
-        // Buscar o cliente (usuário)
-        User client = userRepository.findById(requestDTO.clientId())
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        Optional<User> existingUser = userRepository.findByEmail(requestDTO.email());
+        if (existingUser.isPresent()) {
+            throw new RuntimeException("Já existe um cliente com este email");
+        }
 
-        // Verificar se já existe uma ficha para este cliente neste estabelecimento
-        List<ClientData> existingClientData = clientDataRepository.findByEstablishmentId(establishmentId);
-        boolean clientAlreadyExists = existingClientData.stream()
-                .anyMatch(cd -> cd.getClient().getId().equals(requestDTO.clientId()));
+        User client = new User();
+        client.setName(requestDTO.name());
+        client.setEmail(requestDTO.email());
+        client.setPhone(requestDTO.phone());
+
+        String rawPassword = requestDTO.phone();
+        client.setPassword(passwordEncoder.encode(rawPassword));
+
+        client.setRoles(Set.of(Role.ROLE_CUSTOMER));
+        client = userRepository.save(client);
+
+        boolean clientAlreadyExists = clientDataRepository
+                .findByEstablishmentId(establishmentId)
+                .stream()
+                .anyMatch(cd -> cd.getClient().getEmail().equals(requestDTO.email()));
 
         if (clientAlreadyExists) {
             throw new RuntimeException("Este cliente já possui uma ficha neste estabelecimento");
         }
 
-        // Criar nova ficha de cliente
         ClientData clientData = new ClientData();
         clientData.setClient(client);
         clientData.setEstablishment(establishment);
@@ -59,6 +77,7 @@ public class ClientDataService {
 
         return clientDataRepository.save(clientData);
     }
+
 
     public List<ClientData> getClientsByEstablishment(UUID establishmentId, User loggedUser) {
         // Buscar o estabelecimento
