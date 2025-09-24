@@ -26,7 +26,7 @@ public class Appointment {
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = false)
-    private OfferedService offeredService;
+    private OfferedService service;
 
     @ManyToOne
     @JoinColumn(name = "employee_id", nullable = false)
@@ -39,7 +39,7 @@ public class Appointment {
     private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false, columnDefinition = "appointment_status") 
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
     @Column(name = "extra_price_cents")
@@ -64,8 +64,8 @@ public class Appointment {
     public Establishment getEstablishment() { return establishment; }
     public void setEstablishment(Establishment establishment) { this.establishment = establishment; }
 
-    public OfferedService getService() { return offeredService; }
-    public void setService(OfferedService offeredService) { this.offeredService = offeredService; }
+    public OfferedService getService() { return service; }
+    public void setService(OfferedService service) { this.service = service; }
 
     public Employee getEmployee() { return employee; }
     public void setEmployee(Employee employee) { this.employee = employee; }
