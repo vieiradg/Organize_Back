@@ -4,6 +4,7 @@ import com.organize.dto.AppointmentDTO;
 import com.organize.dto.AppointmentRequestDTO;
 import com.organize.dto.AppointmentStatusUpdateDTO;
 import com.organize.model.Appointment;
+import com.organize.model.Role;
 import com.organize.model.User;
 import com.organize.service.AppointmentService;
 import jakarta.validation.Valid;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -33,15 +33,25 @@ public class AppointmentController {
             @AuthenticationPrincipal User user,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        List<AppointmentDTO> appointments = appointmentService.getAppointmentsByUserAndDateRange(
-                        user.getId(),
-                        date.atStartOfDay(),
-                        date.plusDays(1).atStartOfDay()
-                ).stream()
-                .map(AppointmentDTO::new)
-                .toList();
+        List<Appointment> appointments;
 
-        return ResponseEntity.ok(appointments);
+        if (user.getRoles().contains(Role.ROLE_ADMIN)) {
+            appointments = appointmentService.getAppointmentsByEstablishmentAndDate(
+                    user.getId(),
+                    date.atStartOfDay(),
+                    date.plusDays(1).atStartOfDay()
+            );
+        } else {
+            appointments = appointmentService.getAppointmentsByUserAndDateRange(
+                    user.getId(),
+                    date.atStartOfDay(),
+                    date.plusDays(1).atStartOfDay()
+            );
+        }
+
+        return ResponseEntity.ok(
+                appointments.stream().map(AppointmentDTO::new).toList()
+        );
     }
 
     @PostMapping
@@ -61,6 +71,5 @@ public class AppointmentController {
         Appointment updated = appointmentService.updateStatus(id, request.status());
         return ResponseEntity.ok(new AppointmentDTO(updated));
     }
-
 
 }

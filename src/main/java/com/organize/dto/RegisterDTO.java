@@ -12,9 +12,7 @@ public record RegisterDTO(
     String phone,
     
     @NotBlank
-    String password,
+    String password
     
-    @NotBlank 
-    String role 
 ) {
 }
