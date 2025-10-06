@@ -43,9 +43,6 @@ public class AppointmentService {
     // Método para criar agendamento
     public Appointment createAppointment(AppointmentRequestDTO request, User loggedUser) {
 
-        User client = userRepository.findById(loggedUser.getId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
         OfferedService service = offeredServiceRepository.findById(request.serviceId())
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
@@ -97,6 +94,4 @@ public class AppointmentService {
 
     appointment.setStatus(newStatus);
     return appointmentRepository.save(appointment);
-}
-
-}
+    }}

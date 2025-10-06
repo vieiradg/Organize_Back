@@ -1,7 +1,6 @@
 package com.organize.dto;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 import com.organize.model.AppointmentStatus;

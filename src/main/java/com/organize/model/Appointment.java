@@ -42,9 +42,9 @@ public class Appointment {
     private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
-    @Type(PostgreSQLEnumType.class)
-    @Column(nullable = false, columnDefinition  = "appointment_status")
+    @Column(nullable = false)
     private AppointmentStatus status = AppointmentStatus.PENDING;
+
 
     @Column(name = "extra_price_cents")
     private Integer extraPriceCents = 0;
