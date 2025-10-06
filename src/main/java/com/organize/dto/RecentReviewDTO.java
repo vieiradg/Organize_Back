@@ -1,7 +1,3 @@
 package com.organize.dto;
 
-public record RecentReviewDTO(
-    int rating,
-    String customerName,
-    String comment
-) {}
+public record RecentReviewDTO(String clientName, int rating, String comment) {}

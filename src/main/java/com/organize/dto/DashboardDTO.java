@@ -3,7 +3,7 @@ package com.organize.dto;
 import java.util.List;
 
 public record DashboardDTO(
-    long monthlyRevenue,
+    double monthlyRevenue,   // alterado de long para double
     long appointmentsToday,
     long confirmedAppointmentsToday,
     String nextAppointmentTime,

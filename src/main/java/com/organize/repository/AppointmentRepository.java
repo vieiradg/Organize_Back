@@ -1,6 +1,7 @@
 package com.organize.repository;
 
 import com.organize.model.Appointment;
+import com.organize.model.AppointmentStatus;
 import com.organize.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,14 +10,17 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
 
     @Query("SELECT a FROM Appointment a WHERE a.client.id = :clientId AND a.startTime BETWEEN :start AND :end")
     List<Appointment> findAppointmentsByClientAndDateRange(@Param("clientId") UUID clientId,
-                                                           @Param("start") LocalDateTime start,
-                                                           @Param("end") LocalDateTime end);
-
+    @Param("start") LocalDateTime start,
+    @Param("end") LocalDateTime end);
+    
     List<Appointment> findByClient(User client);
 
     @Query("""
@@ -33,4 +37,24 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
     List<Appointment> findAppointmentsByEstablishmentAndDateRange(@Param("establishmentId") UUID establishmentId,
                                                                   @Param("start") LocalDateTime start,
                                                                   @Param("end") LocalDateTime end);
+    
+List<Appointment> findByStartTimeBetween(LocalDateTime start, LocalDateTime end);
+
+long countByStartTimeBetween(LocalDateTime start, LocalDateTime end);
+
+long countByStartTimeBetweenAndStatus(LocalDateTime start, LocalDateTime end, AppointmentStatus status);
+
+    
+    Optional<Appointment> findFirstByStartTimeAfterOrderByStartTimeAsc(LocalDateTime start);
+
+    List<Appointment> findByStartTimeAfter(LocalDateTime dateTime);
+
+    @Query("SELECT a FROM Appointment a WHERE a.employee.id = :employeeId AND " +
+       "(:start < a.endTime AND :end > a.startTime)")
+    List<Appointment> findConflictingAppointments(
+        @Param("employeeId") UUID employeeId,
+        @Param("start") LocalDateTime start,
+        @Param("end") LocalDateTime end
+);
+
 }

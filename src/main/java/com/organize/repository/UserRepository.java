@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.LocalDateTime;
+
 
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
@@ -17,4 +19,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByRolesContaining(Role role);
 
     boolean existsByEmailAndIdNot(String email, UUID id);
+
+    long countByCreatedAtAfter(LocalDateTime dateTime);
 }
