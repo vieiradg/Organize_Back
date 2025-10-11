@@ -76,29 +76,29 @@ public class AuthenticationController {
 
         return ResponseEntity.ok(new LoginResponseDTO(token, user, establishment));
     }
-
-    @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody @Valid RegisterDTO data) {
-        if (this.userRepository.findByEmail(data.email()).isPresent()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        String encryptedPassword = this.passwordEncoder.encode(data.password());
-
-        Role role = Role.valueOf(data.role());
-        Set<Role> roles = Set.of(role);
-
-        User newUser = new User(
-                data.name(),
-                data.email(),
-                encryptedPassword,
-                data.phone(),
-                roles
-        );
-
-        this.userRepository.save(newUser);
-        return ResponseEntity.ok().build();
+@PostMapping("/register")
+public ResponseEntity<Void> register(@RequestBody @Valid RegisterDTO data) {
+    if (this.userRepository.findByEmail(data.email()).isPresent()) {
+        return ResponseEntity.badRequest().build();
     }
+
+    String encryptedPassword = this.passwordEncoder.encode(data.password());
+
+    // 🔑 Sempre ADMIN
+    Set<Role> roles = Set.of(Role.ROLE_ADMIN);
+
+    User newUser = new User(
+            data.name(),
+            data.email(),
+            encryptedPassword,
+            data.phone(),
+            roles
+    );
+
+    this.userRepository.save(newUser);
+    return ResponseEntity.ok().build();
+}
+
 
     @PostMapping("/forgot-password")
     public ResponseEntity<Void> forgotPassword(@RequestBody @Valid PasswordResetRequestDTO requestDTO) {

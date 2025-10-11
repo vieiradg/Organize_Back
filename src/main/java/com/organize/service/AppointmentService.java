@@ -21,7 +21,13 @@ public class AppointmentService {
     private final WebhookRepository webhookRepository;
     private final WebhookService webhookService;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, OfferedServiceRepository offeredServiceRepository, UserRepository userRepository, EstablishmentRepository establishmentRepository, EmployeeRepository employeeRepository, WebhookRepository webhookRepository, WebhookService webhookService) {
+    public AppointmentService(AppointmentRepository appointmentRepository,
+                              OfferedServiceRepository offeredServiceRepository,
+                              UserRepository userRepository,
+                              EstablishmentRepository establishmentRepository,
+                              EmployeeRepository employeeRepository,
+                              WebhookRepository webhookRepository,
+                              WebhookService webhookService) {
         this.appointmentRepository = appointmentRepository;
         this.offeredServiceRepository = offeredServiceRepository;
         this.userRepository = userRepository;
@@ -33,6 +39,13 @@ public class AppointmentService {
 
     public List<Appointment> getAppointmentsByUserAndDateRange(UUID userId, LocalDateTime start, LocalDateTime end) {
         return appointmentRepository.findAppointmentsByClientAndDateRange(userId, start, end);
+    }
+
+    public List<Appointment> getAppointmentsByEstablishmentAndDate(UUID adminId, LocalDateTime start, LocalDateTime end) {
+        Establishment establishment = establishmentRepository.findByOwnerId(adminId)
+                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado para admin: " + adminId));
+
+        return appointmentRepository.findAppointmentsByEstablishmentAndDateRange(establishment.getId(), start, end);
     }
 
     public Appointment createAppointment(AppointmentRequestDTO request, User loggedUser) {
@@ -112,5 +125,4 @@ public class AppointmentService {
 
         return savedAppointment;
     }
-
 }
