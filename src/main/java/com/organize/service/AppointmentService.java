@@ -1,10 +1,12 @@
 package com.organize.service;
 
 import com.organize.dto.AppointmentRequestDTO;
+import com.organize.dto.TransactionDTO;
 import com.organize.model.*;
 import com.organize.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,7 @@ public class AppointmentService {
     private final EmployeeRepository employeeRepository;
     private final WebhookRepository webhookRepository;
     private final WebhookService webhookService;
+    private final TransactionsRepository transactionsRepository;
 
     public AppointmentService(AppointmentRepository appointmentRepository,
                               OfferedServiceRepository offeredServiceRepository,
@@ -27,7 +30,7 @@ public class AppointmentService {
                               EstablishmentRepository establishmentRepository,
                               EmployeeRepository employeeRepository,
                               WebhookRepository webhookRepository,
-                              WebhookService webhookService) {
+                              WebhookService webhookService, TransactionsRepository transactionsRepository) {
         this.appointmentRepository = appointmentRepository;
         this.offeredServiceRepository = offeredServiceRepository;
         this.userRepository = userRepository;
@@ -35,6 +38,7 @@ public class AppointmentService {
         this.employeeRepository = employeeRepository;
         this.webhookRepository = webhookRepository;
         this.webhookService = webhookService;
+        this.transactionsRepository = transactionsRepository;
     }
 
     public List<Appointment> getAppointmentsByUserAndDateRange(UUID userId, LocalDateTime start, LocalDateTime end) {
@@ -111,6 +115,18 @@ public class AppointmentService {
 
         appointment.setStatus(newStatus);
         Appointment savedAppointment = appointmentRepository.save(appointment);
+
+        // se o appointment for atualizado com Status "COMPLETED" vai fazer um registro na tabela "transactions"
+        if (newStatus == AppointmentStatus.COMPLETED && savedAppointment.getService() != null) {
+            TransactionDTO dto = new TransactionDTO(
+                    savedAppointment.getId(),
+                    savedAppointment.getEstablishment().getId(),
+                    "Agendamento - " + savedAppointment.getClient().getName(),
+                    savedAppointment.getService().getPriceCents(),
+                    LocalDate.now(),
+                    TransactionStatus.PENDING
+            );
+        }
 
         List<Webhook> customerWebhooks = webhookRepository.findByUser(savedAppointment.getClient())
                 .stream()
