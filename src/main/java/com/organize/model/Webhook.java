@@ -27,4 +27,5 @@ public class Webhook {
 
     @Column(nullable = false)
     private String eventType;
+
 }
