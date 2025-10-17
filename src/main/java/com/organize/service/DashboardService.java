@@ -59,3 +59,4 @@ public class DashboardService {
                 totalAppointments     // totalAppointments
         );
     }
+}
