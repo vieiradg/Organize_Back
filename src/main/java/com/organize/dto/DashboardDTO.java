@@ -11,5 +11,7 @@ public record DashboardDTO(
     long newCustomers,
     List<AppointmentDTO> upcomingAppointments,
     List<TopCustomerDTO> topCustomers,
-    List<RecentReviewDTO> recentReviews
+    List<RecentReviewDTO> recentReviews,
+    AppointmentDTO nextAppointment,
+    long totalAppointments
 ) {}

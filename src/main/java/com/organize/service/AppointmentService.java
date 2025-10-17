@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class AppointmentService {
@@ -77,11 +78,7 @@ public class AppointmentService {
         appointment.setEmployee(employee);
         appointment.setStartTime(request.startTime());
         appointment.setEndTime(request.endTime());
-
-        appointment.setStatus(
-                request.status() != null ? request.status() : AppointmentStatus.PENDING
-        );
-
+        appointment.setStatus(request.status() != null ? request.status() : AppointmentStatus.PENDING);
         appointment.setClientNotes(request.clientNotes());
 
         Appointment savedAppointment = appointmentRepository.save(appointment);
@@ -99,10 +96,9 @@ public class AppointmentService {
 
     public Appointment updateStatus(UUID id, String status) {
         Appointment appointment = appointmentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Argumento não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
 
         AppointmentStatus newStatus;
-
         try {
             newStatus = AppointmentStatus.valueOf(status.toUpperCase());
         } catch (IllegalArgumentException e) {
@@ -112,10 +108,11 @@ public class AppointmentService {
         appointment.setStatus(newStatus);
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
+        // Ajuste final: garante que a lista seja do tipo List<Webhook>
         List<Webhook> customerWebhooks = webhookRepository.findByUser(savedAppointment.getClient())
                 .stream()
-                .filter(w -> w.getEventType().equals("STATUS_UPDATED"))
-                .toList();
+                .filter(w -> "STATUS_UPDATED".equals(w.getEventType()))
+                .collect(Collectors.toList());
 
         webhookService.triggerWebhooks(customerWebhooks, Map.of(
                 "event", "STATUS_UPDATED",
