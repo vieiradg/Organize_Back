@@ -1,5 +1,4 @@
 package com.organize.service;
-
 import com.organize.dto.AppointmentDTO;
 import com.organize.dto.DashboardDTO;
 import com.organize.model.Appointment;
@@ -15,7 +14,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class DashboardService {
-
     private final AppointmentRepository appointmentRepository;
 
     public DashboardService(AppointmentRepository appointmentRepository) {
