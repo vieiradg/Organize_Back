@@ -2,12 +2,9 @@ package com.organize.controller;
 
 import com.organize.dto.AppointmentDTO;
 import com.organize.dto.DashboardDTO;
-import com.organize.dto.FinanceDashboardDTO;
-import com.organize.model.User;
 import com.organize.service.DashboardService;
 import com.organize.service.FinanceDashboardService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,23 +17,13 @@ import java.util.UUID;
 public class DashboardController {
 
     private final DashboardService dashboardService;
-    private final FinanceDashboardService financeDashboardService;
 
-    public DashboardController(DashboardService dashboardService,
-                               FinanceDashboardService financeDashboardService) {
+    public DashboardController(DashboardService dashboardService) {
         this.dashboardService = dashboardService;
-        this.financeDashboardService = financeDashboardService;
-    }
-
-    @GetMapping("/finance")
-    public FinanceDashboardDTO getFinanceDashboard(@RequestHeader("adminId") UUID adminId) {
-        return financeDashboardService.getFinanceDashboard(adminId);
     }
 
     @GetMapping
-    public ResponseEntity<DashboardDTO> getDashboard(@AuthenticationPrincipal User loggedUser){
-            DashboardDTO dashboardData = dashboardService.getDashboardData(loggedUser.getId());
-            return ResponseEntity.ok(dashboardData);
-
+    public ResponseEntity<DashboardDTO> getDashboardData() {
+        return ResponseEntity.ok(dashboardService.getDashboardData());
     }
 }
