@@ -12,6 +12,7 @@ public record TransactionResponseDTO(
         String description,
         int amount_cents,
         LocalDate transaction_date,
-        TransactionStatus status
+        TransactionStatus status,
+        String clientName 
 ) {
 }

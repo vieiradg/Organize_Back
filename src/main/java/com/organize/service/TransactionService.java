@@ -2,15 +2,18 @@ package com.organize.service;
 
 import com.organize.dto.TransactionDTO;
 import com.organize.dto.TransactionResponseDTO;
+import com.organize.model.Appointment; 
 import com.organize.model.Establishment;
 import com.organize.model.Transaction;
 import com.organize.model.TransactionStatus;
+import com.organize.repository.AppointmentRepository; 
 import com.organize.repository.EstablishmentRepository;
 import com.organize.repository.TransactionsRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional; 
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -18,10 +21,14 @@ import java.util.stream.Collectors;
 public class TransactionService {
     private final TransactionsRepository transactionsRepository;
     private final EstablishmentRepository establishmentRepository;
+    private final AppointmentRepository appointmentRepository; 
 
-    public TransactionService(TransactionsRepository transactionsRepository, EstablishmentRepository establishmentRepository) {
+    public TransactionService(TransactionsRepository transactionsRepository, 
+                              EstablishmentRepository establishmentRepository,
+                              AppointmentRepository appointmentRepository) { 
         this.transactionsRepository = transactionsRepository;
         this.establishmentRepository = establishmentRepository;
+        this.appointmentRepository = appointmentRepository;
     }
 
     private Establishment getAdminEstablishment(UUID adminId) {
@@ -56,7 +63,7 @@ public class TransactionService {
         transaction.setAmountCents(dto.amount_cents());
         transaction.setTransactionDate(dto.transaction_date() != null ? dto.transaction_date() : LocalDate.now());
         transaction.setStatus(dto.status() != null ? dto.status() : TransactionStatus.PENDING);
-        transaction.setAppointmentId(est.getId());
+        transaction.setAppointmentId(est.getId()); 
 
         Transaction saved = transactionsRepository.save(transaction);
         return toResponseDTO(saved);
@@ -79,14 +86,38 @@ public class TransactionService {
     }
 
     private TransactionResponseDTO toResponseDTO(Transaction transaction) {
+        String clientName = "Transação Manual"; 
+        String description = transaction.getDescription(); 
+        
+        if (transaction.getAppointmentId() != null) {
+            Optional<Appointment> appointment = appointmentRepository.findById(transaction.getAppointmentId());
+            
+            if (appointment.isPresent()) {
+                Appointment app = appointment.get();
+                
+                if (app.getClient() != null) {
+                    clientName = app.getClient().getName();
+                }
+
+         
+                if (app.getService() != null) {
+                    description = app.getService().getName();
+                } else {
+                    description = "Agendamento - Serviço não encontrado"; 
+                }
+                
+            }
+        }
+
         return new TransactionResponseDTO(
                 transaction.getId(),
                 transaction.getAppointmentId() != null ? transaction.getAppointmentId() : null,
                 transaction.getEstablishmentId() != null ? transaction.getEstablishmentId() : null,
-                transaction.getDescription(),
+                description, 
                 transaction.getAmountCents(),
                 transaction.getTransactionDate(),
-                transaction.getStatus()
+                transaction.getStatus(),
+                clientName 
         );
     }
 }
