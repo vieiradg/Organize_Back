@@ -24,6 +24,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     List<Appointment> findByClient(User client);
 
+    // ✅ Adiciona este método para o dashboard
+    List<Appointment> findAllByClient_Id(UUID clientId);
+
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
         FROM Appointment a

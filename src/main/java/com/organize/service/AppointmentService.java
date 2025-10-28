@@ -112,7 +112,6 @@ public class AppointmentService {
         appointment.setStatus(newStatus);
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
-        // se o appointment for atualizado com Status "COMPLETED" vai fazer um registro na tabela "transactions"
         if (newStatus == AppointmentStatus.COMPLETED && savedAppointment.getService() != null) {
             TransactionDTO dto = new TransactionDTO(
                     savedAppointment.getId(),
@@ -124,7 +123,6 @@ public class AppointmentService {
             );
         }
 
-        // Ajuste final: garante que a lista seja do tipo List<Webhook>
 
         List<Webhook> customerWebhooks = webhookRepository.findByUser(savedAppointment.getClient())
                 .stream()

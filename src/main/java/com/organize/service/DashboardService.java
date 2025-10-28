@@ -23,7 +23,6 @@ public class DashboardService {
     public DashboardDTO getDashboardData(UUID clientId) {
         LocalDateTime now = LocalDateTime.now();
 
-        // Buscar o próximo agendamento confirmado
         Appointment nextAppointment = appointmentRepository
                 .findTopByClientIdAndStartTimeAfterAndStatusOrderByStartTimeAsc(
                         clientId,
@@ -32,10 +31,8 @@ public class DashboardService {
                 )
                 .orElse(null);
 
-        // Total de agendamentos do cliente
         long totalAppointments = appointmentRepository.countByClientId(clientId);
 
-        // Lista de agendamentos futuros
         List<AppointmentDTO> upcomingAppointments = appointmentRepository
                 .findByClientIdAndStartTimeAfterOrderByStartTimeAsc(clientId, now)
                 .stream()
@@ -44,19 +41,18 @@ public class DashboardService {
 
         AppointmentDTO nextDTO = nextAppointment != null ? new AppointmentDTO(nextAppointment) : null;
 
-        // Retorna o DTO preenchendo apenas os campos relevantes
         return new DashboardDTO(
-                0,                    // monthlyRevenue
-                0,                    // appointmentsToday
-                0,                    // confirmedAppointmentsToday
-                nextDTO != null ? nextDTO.startTime().toString() : null, // nextAppointmentTime
-                nextDTO != null ? nextDTO.serviceName() : null,          // nextAppointmentDescription
-                0,                    // newCustomers
-                upcomingAppointments, // upcomingAppointments
-                Collections.emptyList(), // topCustomers
-                Collections.emptyList(), // recentReviews
-                nextDTO,              // nextAppointment
-                totalAppointments     // totalAppointments
+                0,                   
+                0,                    
+                0,                 
+                nextDTO != null ? nextDTO.startTime().toString() : null, 
+                nextDTO != null ? nextDTO.serviceName() : null,         
+                0,                   
+                upcomingAppointments, 
+                Collections.emptyList(),
+                Collections.emptyList(), 
+                nextDTO,             
+                totalAppointments    
         );
     }
 }
