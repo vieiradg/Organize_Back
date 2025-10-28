@@ -31,3 +31,43 @@ temp/
 Thumbs.db
 
 src/main/resources/application.properties
+# Arquivos de Build (Maven/Gradle)
+target/
+build/
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+
+# Arquivos de Backup do Maven
+pom.xml.tag
+pom.xml.versionsBackup
+pom.xml.releaseBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+out/
+.project
+.classpath
+.settings/
+
+# Arquivos de Log e Temporários
+*.log
+log/
+tmp/
+temp/
+
+# Arquivos do Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# --- IMPORTANTE: Arquivos do Node.js ---
+# Isso vai resolver o seu problema atual
+node_modules/
+package-lock.json
+package.json
