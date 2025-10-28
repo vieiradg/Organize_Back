@@ -16,7 +16,6 @@ import java.util.UUID;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
 
-    // Consultas existentes
     @Query("SELECT a FROM Appointment a WHERE a.client.id = :clientId AND a.startTime BETWEEN :start AND :end")
     List<Appointment> findAppointmentsByClientAndDateRange(@Param("clientId") UUID clientId,
                                                            @Param("start") LocalDateTime start,
@@ -24,7 +23,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     List<Appointment> findByClient(User client);
 
-    // ✅ Adiciona este método para o dashboard
     List<Appointment> findAllByClient_Id(UUID clientId);
 
     @Query("""
@@ -42,20 +40,32 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
                                                                   @Param("start") LocalDateTime start,
                                                                   @Param("end") LocalDateTime end);
 
-    // ===========================
-    // Novos métodos para Dashboard
-    // ===========================
 
-    // Próximo agendamento futuro confirmado do cliente
+
     Optional<Appointment> findTopByClientIdAndStartTimeAfterAndStatusOrderByStartTimeAsc(
             UUID clientId,
             LocalDateTime now,
             AppointmentStatus status
     );
 
-    // Total de agendamentos do cliente
     long countByClientId(UUID clientId);
 
-    // Lista de próximos agendamentos (ordenados por data)
     List<Appointment> findByClientIdAndStartTimeAfterOrderByStartTimeAsc(UUID clientId, LocalDateTime now);
+    
+    @Query(value = """
+        SELECT COUNT(DISTINCT a.client_id)
+        FROM appointments a
+        WHERE a.establishment_id = :establishmentId
+        AND DATE_TRUNC('month', a.start_time) = DATE_TRUNC('month', CAST(:startOfMonth AS timestamp))
+        AND a.client_id NOT IN (
+            SELECT ap.client_id
+            FROM appointments ap
+            WHERE ap.establishment_id = :establishmentId
+            AND ap.start_time < CAST(:startOfMonth AS timestamp)
+        )
+    """, nativeQuery = true) 
+    Long countNewCustomers(
+        @Param("establishmentId") UUID establishmentId,
+        @Param("startOfMonth") LocalDateTime startOfMonth
+    );
 }

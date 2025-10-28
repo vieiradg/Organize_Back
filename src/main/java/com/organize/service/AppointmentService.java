@@ -122,7 +122,8 @@ public class AppointmentService {
             
             transaction.setAmountCents(savedAppointment.getService().getPriceCents());
             transaction.setTransactionDate(LocalDate.now());
-            transaction.setStatus(TransactionStatus.PAID); 
+            
+            transaction.setStatus(TransactionStatus.PENDING); 
 
             transactionsRepository.save(transaction);
         }
