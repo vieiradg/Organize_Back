@@ -1,7 +1,6 @@
 package com.organize.service;
 
 import com.organize.dto.AppointmentRequestDTO;
-import com.organize.dto.TransactionDTO;
 import com.organize.model.*;
 import com.organize.repository.*;
 import org.springframework.stereotype.Service;
@@ -113,14 +112,19 @@ public class AppointmentService {
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
         if (newStatus == AppointmentStatus.COMPLETED && savedAppointment.getService() != null) {
-            TransactionDTO dto = new TransactionDTO(
-                    savedAppointment.getId(),
-                    savedAppointment.getEstablishment().getId(),
-                    "Agendamento - " + savedAppointment.getClient().getName(),
-                    savedAppointment.getService().getPriceCents(),
-                    LocalDate.now(),
-                    TransactionStatus.PENDING
-            );
+            
+            Transaction transaction = new Transaction();
+            
+            transaction.setAppointmentId(savedAppointment.getId());
+            transaction.setEstablishmentId(savedAppointment.getEstablishment().getId());
+            
+            transaction.setDescription(savedAppointment.getService().getName()); 
+            
+            transaction.setAmountCents(savedAppointment.getService().getPriceCents());
+            transaction.setTransactionDate(LocalDate.now());
+            transaction.setStatus(TransactionStatus.PAID); 
+
+            transactionsRepository.save(transaction);
         }
 
 
