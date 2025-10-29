@@ -1,4 +1,10 @@
-# Organize Backend
+# Organize Backend - Visão Geral
+
+O banco de dados do projeto Organize foi projetado para oferecer uma estrutura relacional clara e escalável, permitindo o gerenciamento eficiente de usuários, estabelecimentos, serviços, agendamentos, pagamentos e relatórios.
+O objetivo é garantir integridade referencial e flexibilidade para futuras expansões, como módulos de notificações, lista de espera e feedbacks.
+
+A modelagem utiliza UUIDs como chaves primárias, assegurando unicidade e compatibilidade em ambientes distribuídos.
+Todas as tabelas incluem campos de auditoria, como created_at, para rastrear o momento da criação dos registros.
 
 ## Descrição
 
@@ -16,20 +22,50 @@ Este é o backend da aplicação Organize, um sistema de gerenciamento de tarefa
 - **Springdoc (Swagger UI)**: Para documentação da API.
 - **Flyway**: Para gerenciamento de migrações de banco de dados.
 
-## Anotações Importantes do Spring Boot
+## Anotações de Controladores (Camada Web)
 
-Anotações mais comuns do Spring Boot usadas neste projeto:
+- **`@RestController`**: Marca a classe como um controlador, onde cada método retorna dados (geralmente em JSON) em vez de uma view.
+- **`@RequestMapping`**: Define o mapeamento base das rotas de um controlador.
+- **`@GetMapping`**: Mapeia requisições HTTP GET para um método.
+- **`@PostMapping`**: Mapeia requisições HTTP POST para um método.
+- **`@PutMapping`**: Mapeia requisições HTTP PUT para um método.
+- **`@PatchMapping`**: Mapeia requisições HTTP PATCH para um método.
+- **`@DeleteMapping`**: Mapeia requisições HTTP DELETE para um método.
+- **`@RequestBody`**: Indica que o parâmetro do método deve ser lido do corpo da requisição.
+- **`@PathVariable`**: Extrai valores da URL e os passa como parâmetros do método.
+- **`@RequestHeader`**: Permite acessar valores de cabeçalhos HTTP da requisição.
 
-- **`@RestController`**: Marca uma classe como um controlador, onde cada método retorna um objeto de domínio em vez de uma visão.
-- **`@RequestMapping`**: Mapeia as requisições web para os métodos dos controladores.
-- **`@Autowired`**: Injeta as dependências automaticamente.
-- **`@Service`**: Marca uma classe como um serviço, que contém a lógica de negócios.
-- **`@Repository`**: Marca uma classe como um repositório, que lida com o acesso aos dados.
-- **`@Entity`**: Especifica que uma classe é uma entidade e está mapeada para uma tabela no banco de dados.
-- **`@Id`**: Especifica a chave primária de uma entidade.
-- **`@GeneratedValue`**: Configura a forma como a chave primária é gerada.
-- **`@Configuration`**: Marca uma classe como uma fonte de definições de beans.
-- **`@Bean`**: Indica que um método produz um bean a ser gerenciado pelo contêiner Spring.
+## Injeção de Dependências e Componentes
+
+- **`@Autowired`**: Injeta automaticamente dependências gerenciadas pelo Spring.
+- **`@Component`**: Marca uma classe como um bean genérico do Spring.
+- **`@Service`**: Marca uma classe que contém a lógica de negócios da aplicação.
+- **`@Repository`**: Indica que a classe faz parte da camada de persistência de dados.
+- **`@Configuration`**: Indica que a classe contém configurações e definições de beans.
+- **`@Bean`**: Declara um método que cria um bean gerenciado pelo contêiner Spring.
+- **`@Value`**: Injeta valores de propriedades definidas no application.properties ou application.yml.
+- **`@Primary`**: Define qual bean deve ser preferido quando houver mais de um candidato para injeção.
+
+## Segurança e Autenticação
+
+- **`@AuthenticationPrincipal`**: Injeta o usuário autenticado no contexto do Spring Security.
+- **`@EnableWebSecurity`**: Ativa e configura o Spring Security no projeto.
+
+## Transações e Gerenciamento
+
+- **`@Transactional`**: Define que o método ou classe será executado dentro de uma transação.
+
+## Inicialização da Aplicação
+
+- **`@SpringBootApplication`**: Marca a classe principal do projeto.
+  
+Combina automaticamente:
+
+- **`@Configuration`**
+
+- **`@EnableAutoConfiguration`**
+
+- **`@ComponentScan`**
 
 ## Estrutura de Pastas
 
@@ -49,13 +85,15 @@ A estrutura de pastas do projeto segue o padrão Maven:
 │   │   │           ├── model/       # Modelos de dados (entidades)
 │   │   │           ├── repository/  # Repositórios (acesso ao banco de dados)
 │   │   │           ├── security/    # Configurações de segurança
-│   │   │           └── service/     # Lógica de negócios
+│   │   │           |── service/     # Lógica de negócios
+|   |   |           └── OrganizeBackendApplication
 │   │   └── resources/
 │   │       ├── application.properties # Configurações da aplicação
 │   │       └── db/
 │   │           └── migration/       # Scripts de migração do Flyway
 │   └── test/
 ├── target/
+├── .gitattributes
 ├── .gitignore
 ├── docker-compose.yml
 ├── Dockerfile
@@ -70,6 +108,7 @@ A estrutura de pastas do projeto segue o padrão Maven:
     - **`repository`**: Interfaces que definem as operações de acesso ao banco de dados.
     - **`security`**: Configurações de segurança, como autenticação e autorização.
     - **`service`**: Onde a lógica de negócios da aplicação é implementada.
+    - **`OrganizeBackendApplication`**: Responsável por inicializar a aplicação e configurar globalmente o CORS, permitindo que o frontend acesse a API sem bloqueios de origem.
 - **`src/main/resources`**: Contém arquivos de configuração, como o `application.properties`, e os scripts de migração do Flyway.
 - **`pom.xml`**: O arquivo de configuração do projeto Maven, que define as dependências e como o projeto é construído.
 
