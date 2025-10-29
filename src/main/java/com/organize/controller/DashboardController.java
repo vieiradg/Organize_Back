@@ -24,7 +24,8 @@ public class DashboardController {
         this.financeDashboardService = financeDashboardService;
     }
 
-   @GetMapping
+    // Esta é a versão corrigida (com 4 espaços)
+    @GetMapping 
     public ResponseEntity<DashboardDTO> getDashboardData(
         @RequestHeader("adminId") UUID adminId 
     ) {
