@@ -24,7 +24,7 @@ public class DashboardController {
         this.financeDashboardService = financeDashboardService;
     }
 
-\    @GetMapping
+    @GetMapping
     public ResponseEntity<DashboardDTO> getDashboardData(
         @RequestHeader("adminId") UUID adminId 
     ) {

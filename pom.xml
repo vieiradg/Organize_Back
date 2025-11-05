@@ -95,6 +95,14 @@
             <version>9.16.3</version>
         </dependency>
 
+      <!-- Google AI Studio -->
+            <dependency>
+                <groupId>com.google.genai</groupId>
+                <artifactId>google-genai</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+
+
     </dependencies>
 
     <build>
