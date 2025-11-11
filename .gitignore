@@ -16,6 +16,7 @@ build/
 *.iws
 *.ipr
 out/
+.env
 
 .project
 .classpath

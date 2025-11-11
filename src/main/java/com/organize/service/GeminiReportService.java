@@ -6,6 +6,7 @@ import com.organize.dto.*;
 import com.organize.model.GeminiReport;
 import com.organize.repository.GeminiReportRepository;
 import com.organize.utils.CryptoUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -22,21 +23,25 @@ public class GeminiReportService {
     private final DashboardService dashboardService;
     private final TransactionService transactionService;
     private final GeminiReportRepository reportRepository;
+    private final CryptoUtils cryptoUtils; 
 
     public GeminiReportService(
             FinanceDashboardService financeDashboardService,
             DashboardService dashboardService,
             TransactionService transactionService,
-            GeminiReportRepository reportRepository
+            GeminiReportRepository reportRepository,
+            CryptoUtils cryptoUtils, 
+            @Value("${gemini.api.key}") String geminiApiKey 
     ) {
         this.client = Client.builder()
-                .apiKey("AIzaSyAI-9P-XRckpmfkl0mD6emv7AwAU7aJbcY")
+                .apiKey(geminiApiKey)
                 .build();
 
         this.financeDashboardService = financeDashboardService;
         this.dashboardService = dashboardService;
         this.transactionService = transactionService;
         this.reportRepository = reportRepository;
+        this.cryptoUtils = cryptoUtils; 
     }
 
     public String generateMonthlyReport(UUID adminId) {
@@ -61,7 +66,8 @@ public class GeminiReportService {
         GeminiReport report = new GeminiReport();
         report.setAdminId(adminId);
         report.setReportMonth(startOfMonth);
-        report.setEncryptedContent(CryptoUtils.encrypt(reportText));
+        
+        report.setEncryptedContent(cryptoUtils.encrypt(reportText));
         reportRepository.save(report);
 
         return reportText;
@@ -72,7 +78,7 @@ public class GeminiReportService {
         if (optionalReport.isEmpty()) {
             throw new RuntimeException("Relatório não encontrado para o mês especificado.");
         }
-        return CryptoUtils.decrypt(optionalReport.get().getEncryptedContent());
+        return cryptoUtils.decrypt(optionalReport.get().getEncryptedContent());
     }
 
     public List<GeminiReportResponseDTO> listReports(UUID adminId) {
@@ -94,7 +100,7 @@ public class GeminiReportService {
                 report.getId(),
                 report.getAdminId(),
                 report.getReportMonth(),
-                CryptoUtils.decrypt(report.getEncryptedContent()),
+                cryptoUtils.decrypt(report.getEncryptedContent()),
                 report.getCreatedAt().toString()
         );
     }
@@ -161,7 +167,5 @@ public class GeminiReportService {
 
         sb.append("\n\nGere o relatório com base nesses dados, destacando tendências e oferecendo conselhos personalizados.\n");
         return sb.toString();
-
-
     }
 }
