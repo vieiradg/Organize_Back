@@ -23,15 +23,15 @@ public class GeminiReportService {
     private final DashboardService dashboardService;
     private final TransactionService transactionService;
     private final GeminiReportRepository reportRepository;
-    private final CryptoUtils cryptoUtils; 
+    private final CryptoUtils cryptoUtils;
 
     public GeminiReportService(
             FinanceDashboardService financeDashboardService,
             DashboardService dashboardService,
             TransactionService transactionService,
             GeminiReportRepository reportRepository,
-            CryptoUtils cryptoUtils, 
-            @Value("${gemini.api.key}") String geminiApiKey 
+            CryptoUtils cryptoUtils,
+            @Value("${gemini.api.key}") String geminiApiKey
     ) {
         this.client = Client.builder()
                 .apiKey(geminiApiKey)
@@ -41,7 +41,7 @@ public class GeminiReportService {
         this.dashboardService = dashboardService;
         this.transactionService = transactionService;
         this.reportRepository = reportRepository;
-        this.cryptoUtils = cryptoUtils; 
+        this.cryptoUtils = cryptoUtils;
     }
 
     public String generateMonthlyReport(UUID adminId) {
@@ -66,7 +66,6 @@ public class GeminiReportService {
         GeminiReport report = new GeminiReport();
         report.setAdminId(adminId);
         report.setReportMonth(startOfMonth);
-        
         report.setEncryptedContent(cryptoUtils.encrypt(reportText));
         reportRepository.save(report);
 
