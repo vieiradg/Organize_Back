@@ -56,14 +56,15 @@ public class FinanceDashboardService {
         double revenueGrowth = prevRevenue > 0 ? ((double) (revenue - prevRevenue) / prevRevenue) * 100 : 0;
         double profitGrowth = prevProfit > 0 ? ((double) (profit - prevProfit) / prevProfit) * 100 : 0;
 
-        LocalDateTime startDateTime = start.atStartOfDay();
-        LocalDateTime endDateTime = end.atTime(23, 59, 59);
 
-        int totalAppointments = appointmentRepository
-                .findAppointmentsByEstablishmentAndDateRange(establishmentId, startDateTime, endDateTime)
-                .size();
+        int totalPaidAppointments = transactionsRepository
+                .countPaidAppointmentsByEstablishmentAndDateRange(
+                        establishmentId,
+                        start,
+                        end
+                );
 
-        double avgRevenuePerAppointment = totalAppointments > 0 ? (double) revenue / totalAppointments : 0;
+        double avgRevenuePerAppointment = totalPaidAppointments > 0 ? (double) revenue / totalPaidAppointments : 0;
 
         return new FinanceDashboardDTO(
                 revenue,
@@ -72,7 +73,7 @@ public class FinanceDashboardService {
                 revenueGrowth,
                 profitGrowth,
                 avgRevenuePerAppointment,
-                totalAppointments
+                totalPaidAppointments
         );
     }
 }
