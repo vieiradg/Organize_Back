@@ -4,6 +4,7 @@ import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
 import com.organize.dto.*;
 import com.organize.model.GeminiReport;
+import com.organize.model.User;
 import com.organize.repository.GeminiReportRepository;
 import com.organize.utils.CryptoUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -165,5 +166,12 @@ public class GeminiReportService {
 
         sb.append("\n\nGere o relatório com base nesses dados, destacando tendências e oferecendo conselhos personalizados.\n");
         return sb.toString();
+    }
+
+    public void deleteReport(UUID reportId) {
+        GeminiReport report = reportRepository.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Relatório não encontrado"));
+
+        reportRepository.delete(report);
     }
 }
