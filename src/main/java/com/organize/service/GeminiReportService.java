@@ -133,11 +133,10 @@ public class GeminiReportService {
         sb.append(String.format("- **Atendimentos Totais:** %d\n", finance.totalAppointments()));
 
         sb.append("\n\n### 🗓️ Dados de Agendamentos\n");
-        sb.append(String.format("- **Total de Agendamentos:** %d\n", dashboard.totalAppointments()));
-        if (dashboard.nextAppointmentTime() != null) {
+        if (dashboard.nextAppointment() != null) {
             sb.append(String.format("- **Próximo Agendamento:** %s (%s)\n",
-                    dashboard.nextAppointmentTime(),
-                    dashboard.nextAppointmentDescription()));
+                    dashboard.nextAppointment().startTime(),
+                    dashboard.nextAppointment().serviceName()));
         } else {
             sb.append("- Nenhum agendamento futuro confirmado.\n");
         }

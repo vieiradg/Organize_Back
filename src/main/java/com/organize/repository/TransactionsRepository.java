@@ -22,7 +22,8 @@ public interface TransactionsRepository extends JpaRepository<Transaction, UUID>
     @Query("SELECT COALESCE(SUM(t.amountCents), 0) FROM Transaction t " +
             "WHERE t.establishmentId = :establishmentId " +
             "AND t.transactionDate BETWEEN :start AND :end " +
-            "AND t.amountCents > 0")
+            "AND t.amountCents > 0" +
+            "AND t.status = 'PAID'")
     long sumRevenueByEstablishmentAndDateRange(@Param("establishmentId") UUID establishmentId,
                                                @Param("start") LocalDate start,
                                                @Param("end") LocalDate end);
@@ -34,5 +35,21 @@ public interface TransactionsRepository extends JpaRepository<Transaction, UUID>
     long sumExpensesByEstablishmentAndDateRange(@Param("establishmentId") UUID establishmentId,
                                                 @Param("start") LocalDate start,
                                                 @Param("end") LocalDate end);
+
+    @Query("""
+    SELECT COUNT(DISTINCT t.appointmentId)
+    FROM Transaction t
+    WHERE t.establishmentId = :establishmentId
+      AND t.status = 'PAID'
+      AND t.appointmentId IS NOT NULL
+      AND t.transactionDate BETWEEN :start AND :end
+""")
+    int countPaidAppointmentsByEstablishmentAndDateRange(
+            @Param("establishmentId") UUID establishmentId,
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end
+    );
+
+
 
 }
