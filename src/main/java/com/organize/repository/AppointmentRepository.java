@@ -23,7 +23,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     List<Appointment> findByClient(User client);
 
-    List<Appointment> findAllByClient_Id(UUID clientId);
 
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
@@ -35,23 +34,26 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
                                   @Param("startTime") LocalDateTime startTime,
                                   @Param("endTime") LocalDateTime endTime);
 
-    @Query("SELECT a FROM Appointment a WHERE a.establishment.id = :establishmentId AND a.startTime BETWEEN :start AND :end")
-    List<Appointment> findAppointmentsByEstablishmentAndDateRange(@Param("establishmentId") UUID establishmentId,
-                                                                  @Param("start") LocalDateTime start,
-                                                                  @Param("end") LocalDateTime end);
-
-
-
-    Optional<Appointment> findTopByClientIdAndStartTimeAfterAndStatusOrderByStartTimeAsc(
-            UUID clientId,
-            LocalDateTime now,
-            AppointmentStatus status
+    @Query("""
+        SELECT a FROM Appointment a
+        JOIN FETCH a.client c
+        JOIN FETCH a.offeredService s
+        JOIN FETCH a.employee e
+        WHERE a.establishment.id = :establishmentId
+        AND a.startTime BETWEEN :start AND :end
+        ORDER BY a.startTime ASC
+    """)
+    List<Appointment> findAppointmentsByEstablishmentAndDateRange(
+            @Param("establishmentId") UUID establishmentId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end
     );
 
-    long countByClientId(UUID clientId);
+    List<Appointment> findAllByEstablishmentIdAndStartTimeAfter(
+            UUID establishmentId,
+            LocalDateTime startTime
+    );
 
-    List<Appointment> findByClientIdAndStartTimeAfterOrderByStartTimeAsc(UUID clientId, LocalDateTime now);
-    
     @Query(value = """
         SELECT COUNT(DISTINCT a.client_id)
         FROM appointments a
@@ -63,9 +65,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
             WHERE ap.establishment_id = :establishmentId
             AND ap.start_time < CAST(:startOfMonth AS timestamp)
         )
-    """, nativeQuery = true) 
+    """, nativeQuery = true)
     Long countNewCustomers(
-        @Param("establishmentId") UUID establishmentId,
-        @Param("startOfMonth") LocalDateTime startOfMonth
+            @Param("establishmentId") UUID establishmentId,
+            @Param("startOfMonth") LocalDateTime startOfMonth
     );
 }
