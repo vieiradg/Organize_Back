@@ -19,6 +19,7 @@ public class AppointmentService {
     private final OfferedServiceRepository offeredServiceRepository;
     private final UserRepository userRepository;
     private final EstablishmentRepository establishmentRepository;
+    private final ClientDataRepository clientDataRepository;
     private final EmployeeRepository employeeRepository;
     private final WebhookRepository webhookRepository;
     private final WebhookService webhookService;
@@ -27,7 +28,7 @@ public class AppointmentService {
     public AppointmentService(AppointmentRepository appointmentRepository,
                               OfferedServiceRepository offeredServiceRepository,
                               UserRepository userRepository,
-                              EstablishmentRepository establishmentRepository,
+                              EstablishmentRepository establishmentRepository, ClientDataRepository clientDataRepository,
                               EmployeeRepository employeeRepository,
                               WebhookRepository webhookRepository,
                               WebhookService webhookService, TransactionsRepository transactionsRepository) {
@@ -35,6 +36,7 @@ public class AppointmentService {
         this.offeredServiceRepository = offeredServiceRepository;
         this.userRepository = userRepository;
         this.establishmentRepository = establishmentRepository;
+        this.clientDataRepository = clientDataRepository;
         this.employeeRepository = employeeRepository;
         this.webhookRepository = webhookRepository;
         this.webhookService = webhookService;
@@ -45,17 +47,40 @@ public class AppointmentService {
         return appointmentRepository.findAppointmentsByClientAndDateRange(userId, start, end);
     }
 
-    public List<Appointment> getAppointmentsByEstablishmentAndDate(UUID adminId, LocalDateTime start, LocalDateTime end) {
-        Establishment establishment = establishmentRepository.findByOwnerId(adminId)
-                .orElseThrow(() -> new RuntimeException("Estabelecimento não encontrado para admin: " + adminId));
-
-        return appointmentRepository.findAppointmentsByEstablishmentAndDateRange(establishment.getId(), start, end);
+    public List<Appointment> getAppointmentsByEstablishmentAndDate(
+            UUID establishmentId,
+            LocalDateTime start,
+            LocalDateTime end
+    ) {
+        return appointmentRepository.findAppointmentsByEstablishmentAndDateRange(
+                establishmentId, start, end
+        );
     }
 
     public Appointment createAppointment(AppointmentRequestDTO request, User loggedUser) {
 
-        User client = userRepository.findById(loggedUser.getId())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        User client;
+
+        if (loggedUser.getRoles().contains(Role.ROLE_ADMIN)) {
+
+            String customerIdStr = String.valueOf(request.customerId());
+            if (customerIdStr == null || customerIdStr.isBlank()) {
+                throw new RuntimeException("Admin deve informar o cliente");
+            }
+
+            UUID clientId = UUID.fromString(customerIdStr);
+            client = clientDataRepository.findById(clientId)
+                    .orElseThrow(() -> new RuntimeException("Cliente não encontrado"))
+                    .getClient();
+
+        } else if (loggedUser.getRoles().contains(Role.ROLE_CUSTOMER)) {
+            ClientData clientData = clientDataRepository.findByClientId(loggedUser.getId())
+                    .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+            client = clientData.getClient();
+
+        } else {
+            throw new RuntimeException("Usuário não autorizado a criar agendamento");
+        }
 
         OfferedService service = offeredServiceRepository.findById(request.serviceId())
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
@@ -80,7 +105,7 @@ public class AppointmentService {
         appointment.setEstablishment(establishment);
         appointment.setEmployee(employee);
         appointment.setStartTime(request.startTime());
-        appointment.setEndTime(request.endTime());
+        appointment.setEndTime(request.endTime().minusMinutes(1));
         appointment.setStatus(request.status() != null ? request.status() : AppointmentStatus.PENDING);
         appointment.setClientNotes(request.clientNotes());
 
