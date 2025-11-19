@@ -23,11 +23,12 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     List<Appointment> findByClient(User client);
 
-    List<Appointment> findAllByEstablishmentIdAndStartTimeAfterAndStatusOrderByStartTimeAsc(
+    List<Appointment> findAllByEstablishmentIdAndStartTimeAfterAndStatusInOrderByStartTimeAsc(
             UUID establishmentId,
             LocalDateTime startTime,
-            AppointmentStatus status
+            List<AppointmentStatus> statusList
     );
+
 
 
 

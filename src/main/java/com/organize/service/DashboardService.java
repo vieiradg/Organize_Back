@@ -69,17 +69,16 @@ public class DashboardService {
         long appointmentsToday = todayAppointments.size();
 
         long confirmedAppointmentsToday = todayAppointments.stream()
-                .filter(a -> a.getStatus() == AppointmentStatus.CONFIRMED
-                        || a.getStatus() == AppointmentStatus.COMPLETED)
+                .filter(a -> a.getStatus() == AppointmentStatus.CONFIRMED)
                 .count();
 
         long newCustomers = appointmentRepository.countNewCustomers(establishmentId, startOfMonth);
 
         List<Appointment> futureAppointments =
-                appointmentRepository.findAllByEstablishmentIdAndStartTimeAfterAndStatusOrderByStartTimeAsc(
+                appointmentRepository.findAllByEstablishmentIdAndStartTimeAfterAndStatusInOrderByStartTimeAsc(
                         establishmentId,
                         now.toLocalDateTime(),
-                        AppointmentStatus.PENDING
+                        List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED)
                 );
 
         List<AppointmentDTO> upcomingAppointments =
