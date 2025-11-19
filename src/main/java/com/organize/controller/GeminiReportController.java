@@ -1,8 +1,10 @@
 package com.organize.controller;
 
+import com.organize.model.User;
 import com.organize.service.GeminiReportService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -50,6 +52,14 @@ public class GeminiReportController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("❌ Erro ao buscar relatório detalhado: " + e.getMessage());
         }
+    }
+
+    @DeleteMapping("/{reportId}")
+    public ResponseEntity<Void> deleteReport(
+            @PathVariable UUID reportId
+    ) {
+        geminiReportService.deleteReport(reportId);
+        return ResponseEntity.noContent().build();
     }
 
 }
