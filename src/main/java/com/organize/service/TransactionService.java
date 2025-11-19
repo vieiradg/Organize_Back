@@ -63,7 +63,7 @@ public class TransactionService {
         transaction.setAmountCents(dto.amount_cents());
         transaction.setTransactionDate(dto.transaction_date() != null ? dto.transaction_date() : LocalDate.now());
         transaction.setStatus(dto.status() != null ? dto.status() : TransactionStatus.PENDING);
-        transaction.setAppointmentId(est.getId()); 
+        transaction.setEstablishmentId(est.getId());
 
         Transaction saved = transactionsRepository.save(transaction);
         return toResponseDTO(saved);
