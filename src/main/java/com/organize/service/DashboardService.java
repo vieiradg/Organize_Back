@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -39,12 +41,11 @@ public class DashboardService {
     }
 
     public DashboardDTO getDashboardData(UUID adminId) {
-
         Establishment est = getAdminEstablishment(adminId);
         UUID establishmentId = est.getId();
 
         LocalDate today = LocalDate.now();
-        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.ofHours(-3));
 
         LocalDateTime startOfDay = today.atStartOfDay();
         LocalDateTime endOfDay = today.atTime(23, 59, 59);
@@ -74,13 +75,14 @@ public class DashboardService {
         long newCustomers = appointmentRepository.countNewCustomers(establishmentId, startOfMonth);
 
         List<Appointment> futureAppointments =
-                appointmentRepository.findAllByEstablishmentIdAndStartTimeAfter(
-                        establishmentId, now
+                appointmentRepository.findAllByEstablishmentIdAndStartTimeAfterAndStatusInOrderByStartTimeAsc(
+                        establishmentId,
+                        now.toLocalDateTime(),
+                        List.of(AppointmentStatus.PENDING, AppointmentStatus.CONFIRMED)
                 );
 
         List<AppointmentDTO> upcomingAppointments =
                 futureAppointments.stream()
-                        .sorted(Comparator.comparing(Appointment::getStartTime))
                         .map(AppointmentDTO::new)
                         .toList();
 
@@ -97,4 +99,5 @@ public class DashboardService {
                 nextAppointment
         );
     }
+
 }

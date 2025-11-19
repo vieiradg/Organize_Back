@@ -23,6 +23,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, UUID> 
 
     List<Appointment> findByClient(User client);
 
+    List<Appointment> findAllByEstablishmentIdAndStartTimeAfterAndStatusInOrderByStartTimeAsc(
+            UUID establishmentId,
+            LocalDateTime startTime,
+            List<AppointmentStatus> statusList
+    );
+
+
+
 
     @Query("""
         SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END
